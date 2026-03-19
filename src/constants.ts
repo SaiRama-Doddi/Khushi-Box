@@ -91,4 +91,6 @@ export const REVIEWS: Review[] = [
   }
 ];
 
+export const WEARABLE_SIZES = ["S", "M", "L", "XL", "XXL"];
+
 export const BUSINESS_PHONE = "917702522332";

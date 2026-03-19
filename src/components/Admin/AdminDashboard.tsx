@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../../firebase';
+import { WEARABLE_SIZES } from '../../constants';
 import { 
   collection, 
   addDoc, 
@@ -107,7 +108,6 @@ const AdminDashboard: React.FC = () => {
     isAlert: false
   });
 
-  const WEARABLE_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
   const AVAILABLE_SIZES = WEARABLE_SIZES;
 
   enum OperationType {
