@@ -1027,23 +1027,23 @@ const AdminDashboard: React.FC = () => {
               {/* Stats Overview */}
               {/* Stats Overview */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
-                <div className="bg-[#1E293B] p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] border border-slate-800/50 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute -top-4 -right-4 p-4 md:p-8 text-primary/10 group-hover:text-primary/20 transition-colors">
+                <div className="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] border border-slate-200 shadow-lg relative overflow-hidden group">
+                  <div className="absolute -top-4 -right-4 p-4 md:p-8 text-slate-300 group-hover:text-slate-400 transition-colors">
                     <ShoppingBag size={80} className="md:w-[120px] md:h-[120px]" />
                   </div>
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-2 md:mb-4">Total Orders Volume</p>
                   <div className="flex items-baseline gap-2 md:gap-3">
-                    <span className="text-4xl md:text-6xl font-black text-white tracking-tighter">{totalOrdersCount}</span>
+                    <span className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter">{totalOrdersCount}</span>
                     <span className="text-[10px] md:text-sm font-bold text-emerald-500 uppercase tracking-widest leading-none">Active Entries</span>
                   </div>
                 </div>
-                <div className="bg-[#1E293B] p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] border border-slate-800/50 shadow-2xl relative overflow-hidden group">
-                  <div className="absolute -top-4 -right-4 p-4 md:p-8 text-emerald-500/10 group-hover:text-emerald-500/20 transition-colors">
+                <div className="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] border border-slate-200 shadow-lg relative overflow-hidden group">
+                  <div className="absolute -top-4 -right-4 p-4 md:p-8 text-emerald-300 group-hover:text-emerald-400 transition-colors">
                     <LayoutDashboard size={80} className="md:w-[120px] md:h-[120px]" />
                   </div>
                   <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-2 md:mb-4">Cumulative Revenue</p>
                   <div className="flex items-baseline gap-2 md:gap-3">
-                    <span className="text-3xl md:text-6xl font-black text-white tracking-tighter">₹{totalRevenue.toLocaleString()}</span>
+                    <span className="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter">₹{totalRevenue.toLocaleString()}</span>
                     <span className="text-[10px] md:text-sm font-bold text-primary uppercase tracking-widest italic leading-none">INR Net</span>
                   </div>
                 </div>
@@ -1051,7 +1051,7 @@ const AdminDashboard: React.FC = () => {
 
               {/* Filter Bar */}
               <div className="overflow-x-auto custom-scrollbar -mx-4 px-4 py-2 md:mx-0 md:px-0 md:py-0">
-                <div className="flex items-center gap-3 md:gap-4 bg-[#0F172A] p-2 md:p-3 rounded-2xl md:rounded-3xl border border-slate-800/50 w-max md:w-fit min-w-full md:min-w-0">
+                <div className="flex items-center gap-3 md:gap-4 bg-white p-2 md:p-3 rounded-2xl md:rounded-3xl border border-slate-200 w-max md:w-fit min-w-full md:min-w-0">
                   {[
                     { id: 'all', label: 'All Records' },
                     { id: 'today', label: 'Today Only' },
@@ -1077,7 +1077,7 @@ const AdminDashboard: React.FC = () => {
               {/* Orders List */}
               <div className="space-y-6 md:space-y-8">
                 {filteredOrders.map(order => (
-                  <div key={order.id} className="bg-[#1E293B] p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-slate-800/50 shadow-2xl flex flex-col xl:flex-row justify-between gap-8 md:gap-12 group hover:border-primary/30 transition-all duration-500">
+                  <div key={order.id} className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] border border-slate-200 shadow-lg flex flex-col xl:flex-row justify-between gap-8 md:gap-12 group hover:border-primary/30 transition-all duration-500">
                     <div className="flex-1 space-y-6 md:space-y-8">
                       <div className="flex flex-wrap items-center gap-3 md:gap-4">
                         <div className="px-3 md:px-4 py-1.5 md:py-2 bg-primary/10 border border-primary/20 rounded-lg md:rounded-xl">
@@ -1096,8 +1096,8 @@ const AdminDashboard: React.FC = () => {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                         <div className="space-y-3 md:space-y-4">
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Client Profile</p>
-                          <div className="bg-[#0F172A] p-5 md:p-6 rounded-2xl md:rounded-3xl border border-slate-800/50 space-y-3">
-                            <p className="text-base md:text-lg font-black text-white">{order.shippingDetails?.firstName} {order.shippingDetails?.lastName}</p>
+                          <div className="bg-white p-5 md:p-6 rounded-2xl md:rounded-3xl border border-slate-200 space-y-3">
+                            <p className="text-base md:text-lg font-black text-slate-900">{order.shippingDetails?.firstName} {order.shippingDetails?.lastName}</p>
                             <p className="text-[11px] md:text-xs text-slate-400 leading-relaxed font-medium">
                               {order.shippingDetails?.address}, {order.shippingDetails?.city}<br/>
                               <span className="text-slate-500">{order.shippingDetails?.postalCode && `PIN ${order.shippingDetails.postalCode}`}</span>
@@ -1118,18 +1118,18 @@ const AdminDashboard: React.FC = () => {
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] ml-1">Manifest Items</p>
                           <div className="space-y-3">
                             {order.items?.map((item: any, i: number) => (
-                              <div key={i} className="flex items-center gap-3 md:gap-4 bg-[#0F172A] p-3 rounded-xl md:rounded-2xl border border-slate-800/50 group/item hover:border-primary/20 transition-all">
-                                <div className="size-12 md:size-14 rounded-lg md:rounded-xl bg-[#1E293B] border border-slate-800/50 overflow-hidden shrink-0 shadow-inner">
+                              <div key={i} className="flex items-center gap-3 md:gap-4 bg-white p-3 rounded-xl md:rounded-2xl border border-slate-200 group/item hover:border-primary/20 transition-all">
+                                <div className="size-12 md:size-14 rounded-lg md:rounded-xl bg-slate-100 border border-slate-200 overflow-hidden shrink-0 shadow-sm">
                                   <img src={item.image || (item.imageUrl)} className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500" referrerPolicy="no-referrer" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-[11px] md:text-xs font-black text-white truncate">{item.name}</p>
+                                  <p className="text-[11px] md:text-xs font-black text-slate-900 truncate">{item.name}</p>
                                   <p className="text-[9px] md:text-[10px] text-slate-500 font-black uppercase tracking-widest mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis">
                                     Qty: {item.quantity} {item.size && item.size !== 'N/A' && <span className="mx-1.5 text-primary">• {item.size}</span>}
                                   </p>
                                 </div>
                                 <div className="text-right shrink-0">
-                                  <p className="text-xs font-black text-white">₹{(item.price || 0) * (item.quantity || 1)}</p>
+                                  <p className="text-xs font-black text-slate-900">₹{(item.price || 0) * (item.quantity || 1)}</p>
                                 </div>
                               </div>
                             ))}
