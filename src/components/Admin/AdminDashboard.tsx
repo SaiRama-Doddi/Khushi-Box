@@ -775,7 +775,7 @@ const AdminDashboard: React.FC = () => {
                     <div className="p-6 md:p-8 flex-1 flex flex-col">
                       <div className="flex justify-between items-start mb-6">
                         <div className="flex-1 overflow-hidden pr-2">
-                          <h4 className="text-lg md:text-xl font-black text-white tracking-tight truncate">{cat.name}</h4>
+                          <h4 className="text-lg md:text-xl font-black text-slate-900 tracking-tight truncate">{cat.name}</h4>
                           <span className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-1 block truncate">{cat.slug}</span>
                         </div>
                         <div className="bg-primary/10 text-primary px-2 md:px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-primary/20 shrink-0">
@@ -966,16 +966,16 @@ const AdminDashboard: React.FC = () => {
                         <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 text-right">Operations</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-800/50">
+                    <tbody className="divide-y divide-slate-200">
                       {products.map(prod => (
-                        <tr key={prod.id} className="hover:bg-slate-800/30 transition-colors group">
+                        <tr key={prod.id} className="hover:bg-slate-100 transition-colors group">
                           <td className="px-6 md:px-10 py-5 md:py-6">
                             <div className="flex items-center gap-4 md:gap-6">
-                              <div className="size-12 md:size-16 rounded-xl md:rounded-2xl bg-white border border-slate-800/50 overflow-hidden shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                                <img src={prod.image} className="w-full h-full object-cover opacity-80 group-hover:opacity-100" referrerPolicy="no-referrer" />
+                              <div className="size-12 md:size-16 rounded-xl md:rounded-2xl bg-white border border-slate-200 overflow-hidden shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-500">
+                                <img src={prod.image} className="w-full h-full object-cover opacity-90 group-hover:opacity-100" referrerPolicy="no-referrer" />
                               </div>
                               <div className="flex flex-col min-w-0">
-                                <span className="font-black text-white tracking-tight truncate max-w-[150px] md:max-w-none">{prod.name}</span>
+                                <span className="font-black text-slate-900 tracking-tight truncate max-w-[150px] md:max-w-none">{prod.name}</span>
                                 <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mt-1 ${prod.inStock !== false ? 'text-emerald-500' : 'text-rose-500 animate-pulse'}`}>
                                   {prod.inStock !== false ? 'Online' : 'Offline'}
                                 </span>
@@ -990,25 +990,25 @@ const AdminDashboard: React.FC = () => {
                           </td>
                           <td className="px-6 md:px-10 py-5 md:py-6">
                             <div className="flex flex-col">
-                              <span className="text-base md:text-lg font-black text-white">₹{prod.price || prod.offerPrice}</span>
+                              <span className="text-base md:text-lg font-black text-slate-900">₹{prod.price || prod.offerPrice}</span>
                               {(prod.originalPrice || prod.actualPrice) && (
                                 <span className="text-[9px] md:text-[10px] text-slate-500 line-through tracking-widest font-bold uppercase truncate">₹{prod.originalPrice || prod.actualPrice}</span>
                               )}
                             </div>
                           </td>
                           <td className="px-6 md:px-10 py-5 md:py-6">
-                            <span className="text-[11px] font-black text-slate-200">{(prod.rating || 0).toFixed(1)} ⭐</span>
+                            <span className="text-[11px] font-black text-slate-700">{(prod.rating || 0).toFixed(1)} ⭐</span>
                             <p className="text-[9px] text-slate-500">({prod.reviews || 0} reviews)</p>
                           </td>
                           <td className="px-6 md:px-10 py-5 md:py-6 text-right">
                             <div className="flex gap-2 md:gap-4 justify-end">
                               <button 
                                 onClick={() => setEditingItem({ type: 'product', ...prod })}
-                                className="size-9 md:size-10 bg-slate-800/50 rounded-lg md:rounded-xl flex items-center justify-center text-slate-400 hover:text-primary hover:bg-primary/10 transition-all border border-slate-700/50 shadow-lg"
+                                className="size-9 md:size-10 bg-slate-100 rounded-lg md:rounded-xl flex items-center justify-center text-slate-600 hover:text-primary hover:bg-primary/10 transition-all border border-slate-200 shadow-sm"
                               >
                                 <Edit2 size={16} className="md:w-[18px] md:h-[18px]" />
                               </button>
-                              <button onClick={() => deleteItem('products', prod.id)} className="size-9 md:size-10 bg-slate-800/50 rounded-lg md:rounded-xl flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-all border border-slate-700/50 shadow-lg">
+                              <button onClick={() => deleteItem('products', prod.id)} className="size-9 md:size-10 bg-slate-100 rounded-lg md:rounded-xl flex items-center justify-center text-slate-600 hover:text-rose-500 hover:bg-rose-100 transition-all border border-slate-200 shadow-sm">
                                 <Trash2 size={16} className="md:w-[18px] md:h-[18px]" />
                               </button>
                             </div>
