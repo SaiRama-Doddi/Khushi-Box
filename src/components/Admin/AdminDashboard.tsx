@@ -736,15 +736,15 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">URL Identifier (Slug)</label>
-                  <input value={catSlug} onChange={e => setCatSlug(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-slate-700 outline-none border" placeholder="e.g. luxury-apparel" />
+                  <input value={catSlug} onChange={e => setCatSlug(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-slate-700 outline-none border" placeholder="e.g. luxury-apparel" />
                 </div>
                 <div className="space-y-3 md:col-span-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Sub-Matrices (Comma separated)</label>
-                  <input value={catSubcats} onChange={e => setCatSubcats(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-slate-700 outline-none border" placeholder="e.g. Mugs, Frames, Clocks" />
+                  <input value={catSubcats} onChange={e => setCatSubcats(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-slate-700 outline-none border" placeholder="e.g. Mugs, Frames, Clocks" />
                 </div>
                 <div className="space-y-3 md:col-span-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Visual Asset URL</label>
-                  <input value={catImage} onChange={e => setCatImage(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-slate-700 outline-none border" placeholder="https://source.unsplash.com/assets/..." />
+                  <input value={catImage} onChange={e => setCatImage(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-slate-700 outline-none border" placeholder="https://source.unsplash.com/assets/..." />
                 </div>
                 <button type="submit" className="md:col-span-2 bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-[0.98] flex items-center justify-center gap-3">
                   <Plus size={20} /> Initialize Category
@@ -754,7 +754,7 @@ const AdminDashboard: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {categories.map(cat => (
                   <div key={cat.id} className="bg-[#1E293B] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border border-slate-800/50 group relative flex flex-col shadow-xl hover:border-primary/30 transition-all duration-500">
-                    <div className="h-40 md:h-48 bg-[#0F172A] relative overflow-hidden">
+                    <div className="h-40 md:h-48 bg-white relative overflow-hidden">
                       <img src={cat.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80" referrerPolicy="no-referrer" />
                       <div className="absolute inset-0 bg-gradient-to-t from-[#1E293B] to-transparent opacity-60"></div>
                       <div className="absolute top-4 right-4 flex gap-2 lg:opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 lg:group-hover:translate-y-0">
@@ -784,7 +784,7 @@ const AdminDashboard: React.FC = () => {
                       </div>
                       
                       <div className="space-y-4">
-                        <div className="flex justify-between items-center bg-[#0F172A]/50 p-2 rounded-xl border border-slate-800/30">
+                        <div className="flex justify-between items-center bg-white/50 p-2 rounded-xl border border-slate-800/30">
                           <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-2">Sub-Matrices</h4>
                           <button 
                             onClick={() => setShowSubcatForm(showSubcatForm === cat.id ? null : cat.id)}
@@ -795,7 +795,7 @@ const AdminDashboard: React.FC = () => {
                         </div>
                         
                         {showSubcatForm === cat.id && (
-                          <div className="p-4 bg-[#0F172A] rounded-2xl space-y-3 border border-slate-800 shadow-inner">
+                          <div className="p-4 bg-white rounded-2xl space-y-3 border border-slate-800 shadow-inner">
                             <textarea 
                               value={newSubcatName} 
                               onChange={e => setNewSubcatName(e.target.value)}
@@ -813,7 +813,7 @@ const AdminDashboard: React.FC = () => {
 
                         <div className="flex flex-wrap gap-2">
                           {cat.children?.map((child: any) => (
-                            <div key={child.id} className="flex items-center gap-2 bg-[#0F172A] px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl border border-slate-800/50 group/sub hover:border-primary/40 transition-all">
+                            <div key={child.id} className="flex items-center gap-2 bg-white px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl border border-slate-800/50 group/sub hover:border-primary/40 transition-all">
                               <span className="text-[9px] md:text-[10px] font-black text-slate-400 group-hover/sub:text-slate-200 uppercase tracking-widest">{child.name}</span>
                               <button 
                                 onClick={() => deleteSubcategory(cat.id, child.id, cat.children)}
@@ -839,9 +839,9 @@ const AdminDashboard: React.FC = () => {
 
           {activeTab === 'products' && (
             <motion.div key="prod" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
-              <form onSubmit={addProduct} className="bg-[#1E293B] p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-slate-800/50 shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+              <form onSubmit={addProduct} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-slate-200 shadow-lg grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div className="md:col-span-2 flex items-center justify-between">
-                  <h3 className="text-lg md:text-xl font-black text-white tracking-tight">Index New Product</h3>
+                  <h3 className="text-lg md:text-xl font-black text-slate-900 tracking-tight">Index New Product</h3>
                   <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
                     <Plus size={20} />
                   </div>
@@ -849,34 +849,34 @@ const AdminDashboard: React.FC = () => {
                 
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Product Title</label>
-                  <input value={prodName} onChange={e => setProdName(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium outline-none border" placeholder="E.G. SIGNATURE COLLECTION" />
+                  <input value={prodName} onChange={e => setProdName(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium outline-none border" placeholder="E.G. SIGNATURE COLLECTION" />
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">MSRP (₹)</label>
-                    <input type="number" step="1" value={prodOriginalPrice} onChange={e => setProdOriginalPrice(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none border" />
+                    <input type="number" step="1" value={prodOriginalPrice} onChange={e => setProdOriginalPrice(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none border" />
                   </div>
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Listing Price (₹)</label>
-                    <input type="number" step="1" value={prodPrice} onChange={e => setProdPrice(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 transition-all outline-none border" />
+                    <input type="number" step="1" value={prodPrice} onChange={e => setProdPrice(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 transition-all outline-none border" />
                   </div>
                 </div>
                 
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Core Matrix (Category)</label>
-                  <select value={prodCat} onChange={e => setProdCat(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 transition-all font-medium appearance-none outline-none border">
-                    <option value="" className="bg-[#0F172A]">Select Domain</option>
-                    {categories.map(c => <option key={c.id} value={c.slug} className="bg-[#0F172A]">{c.name}</option>)}
+                  <select value={prodCat} onChange={e => setProdCat(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 transition-all font-medium appearance-none outline-none border">
+                    <option value="" className="bg-white">Select Domain</option>
+                    {categories.map(c => <option key={c.id} value={c.slug} className="bg-white">{c.name}</option>)}
                   </select>
                 </div>
                 
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Sub-Matrix (Subcategory)</label>
-                  <select value={prodSubcategory} onChange={e => setProdSubcategory(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 appearance-none outline-none border">
-                    <option value="" className="bg-[#0F172A]">Select Protocol</option>
+                  <select value={prodSubcategory} onChange={e => setProdSubcategory(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 appearance-none outline-none border">
+                    <option value="" className="bg-white">Select Protocol</option>
                     {categories.find(c => c.slug === prodCat)?.children?.map((child: any) => (
-                      <option key={child.id} value={child.slug} className="bg-[#0F172A]">{child.name}</option>
+                      <option key={child.id} value={child.slug} className="bg-white">{child.name}</option>
                     ))}
                   </select>
                 </div>
@@ -908,38 +908,38 @@ const AdminDashboard: React.FC = () => {
 
                 <div className="space-y-3 md:col-span-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Primary Asset URL</label>
-                  <input value={prodImage} onChange={e => setProdImage(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="HTTPS://..." />
+                  <input value={prodImage} onChange={e => setProdImage(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="HTTPS://..." />
                 </div>
 
                 <div className="space-y-3 md:col-span-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Gallery Images (comma separated URLs)</label>
-                  <input value={prodImages} onChange={e => setProdImages(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="https://... , https://..." />
+                  <input value={prodImages} onChange={e => setProdImages(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="https://... , https://..." />
                   <p className="text-[10px] text-slate-500">Add 2-4 image links for the product gallery (optional, comma-separated).</p>
                 </div>
 
                 <div className="space-y-3 md:col-span-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Description</label>
-                  <textarea value={prodDesc} onChange={e => setProdDesc(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Add the product description" />
+                  <textarea value={prodDesc} onChange={e => setProdDesc(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Add the product description" />
                 </div>
 
                 <div className="space-y-3 md:col-span-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Details / Specifications</label>
-                  <textarea value={prodDetails} onChange={e => setProdDetails(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Key details (e.g. size, material, usage)" />
+                  <textarea value={prodDetails} onChange={e => setProdDetails(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Key details (e.g. size, material, usage)" />
                 </div>
 
                 <div className="space-y-3 md:col-span-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Key Features (comma separated)</label>
-                  <input value={prodKeyFeatures} onChange={e => setProdKeyFeatures(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Personalized Design, Non-slip Base, Stitched Edges" />
+                  <input value={prodKeyFeatures} onChange={e => setProdKeyFeatures(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Personalized Design, Non-slip Base, Stitched Edges" />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 md:col-span-2">
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Rating</label>
-                    <input type="number" min="0" max="5" step="0.1" value={prodRating} onChange={e => setProdRating(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" />
+                    <input type="number" min="0" max="5" step="0.1" value={prodRating} onChange={e => setProdRating(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" />
                   </div>
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Reviews Count</label>
-                    <input type="number" min="0" step="1" value={prodReviews} onChange={e => setProdReviews(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" />
+                    <input type="number" min="0" step="1" value={prodReviews} onChange={e => setProdReviews(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" />
                   </div>
                 </div>
 
@@ -971,7 +971,7 @@ const AdminDashboard: React.FC = () => {
                         <tr key={prod.id} className="hover:bg-slate-800/30 transition-colors group">
                           <td className="px-6 md:px-10 py-5 md:py-6">
                             <div className="flex items-center gap-4 md:gap-6">
-                              <div className="size-12 md:size-16 rounded-xl md:rounded-2xl bg-[#0F172A] border border-slate-800/50 overflow-hidden shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                              <div className="size-12 md:size-16 rounded-xl md:rounded-2xl bg-white border border-slate-800/50 overflow-hidden shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-500">
                                 <img src={prod.image} className="w-full h-full object-cover opacity-80 group-hover:opacity-100" referrerPolicy="no-referrer" />
                               </div>
                               <div className="flex flex-col min-w-0">
@@ -1262,19 +1262,19 @@ const AdminDashboard: React.FC = () => {
                     >
                       <div className="space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Category Designation</label>
-                        <input name="name" defaultValue={editingItem.name} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                        <input name="name" defaultValue={editingItem.name} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
                       </div>
                       <div className="space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Matrix Slug (URL)</label>
-                        <input name="slug" defaultValue={editingItem.slug} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                        <input name="slug" defaultValue={editingItem.slug} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
                       </div>
                       <div className="space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Asset Reference (Image URL)</label>
-                        <input name="image" defaultValue={editingItem.image} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                        <input name="image" defaultValue={editingItem.image} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
                       </div>
                       <div className="space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Sub-Matrices (Comma Separated)</label>
-                        <textarea name="subcategories" defaultValue={editingItem.children?.map((c: any) => c.name).join(', ')} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium h-32 outline-none border" />
+                        <textarea name="subcategories" defaultValue={editingItem.children?.map((c: any) => c.name).join(', ')} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium h-32 outline-none border" />
                       </div>
                       <button type="submit" className="w-full bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-[0.98]">
                         Synchronize Matrix Changes
@@ -1309,31 +1309,31 @@ const AdminDashboard: React.FC = () => {
                     >
                       <div className="space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Asset Identity (Name)</label>
-                        <input name="name" defaultValue={editingItem.name} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                        <input name="name" defaultValue={editingItem.name} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
                       </div>
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-3">
                           <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">MSRP</label>
-                          <input name="originalPrice" type="number" step="1" defaultValue={editingItem.originalPrice || editingItem.actualPrice} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                          <input name="originalPrice" type="number" step="1" defaultValue={editingItem.originalPrice || editingItem.actualPrice} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
                         </div>
                         <div className="space-y-3">
                           <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">LIST</label>
-                          <input name="price" type="number" step="1" defaultValue={editingItem.price || editingItem.offerPrice} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                          <input name="price" type="number" step="1" defaultValue={editingItem.price || editingItem.offerPrice} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
                         </div>
                       </div>
                       <div className="space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Domain Path (Category)</label>
-                        <select name="category" defaultValue={editingItem.category} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium appearance-none outline-none border">
-                          {categories.map(c => <option key={c.id} value={c.slug} className="bg-[#0F172A]">{c.name}</option>)}
+                        <select name="category" defaultValue={editingItem.category} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium appearance-none outline-none border">
+                          {categories.map(c => <option key={c.id} value={c.slug} className="bg-white">{c.name}</option>)}
                         </select>
                       </div>
                       <div className="space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Protocol Type (Subcategory)</label>
-                        <input name="subcategory" defaultValue={editingItem.subcategory || editingItem.childCategory} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                        <input name="subcategory" defaultValue={editingItem.subcategory || editingItem.childCategory} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
                       </div>
                       <div className="md:col-span-2 space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Master Asset URL</label>
-                        <input name="image" defaultValue={editingItem.image} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                        <input name="image" defaultValue={editingItem.image} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
                       </div>
                       <div className="md:col-span-2 space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Gallery Images (comma separated URLs)</label>
