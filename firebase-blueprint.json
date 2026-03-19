@@ -1,0 +1,86 @@
+{
+  "entities": {
+    "Category": {
+      "title": "Category",
+      "description": "Product categories for the store",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Display name of the category" },
+        "slug": { "type": "string", "description": "URL slug for the category" },
+        "image": { "type": "string", "description": "URL of the category image" },
+        "children": { 
+          "type": "array", 
+          "items": { 
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "slug": { "type": "string" }
+            }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "slug"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Items available for sale",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string", "description": "Main category slug" },
+        "childCategory": { "type": "string", "description": "Subcategory slug" },
+        "rating": { "type": "number" },
+        "image": { "type": "string" },
+        "images": { "type": "array", "items": { "type": "string" } },
+        "sizes": { "type": "array", "items": { "type": "string" } },
+        "details": {
+          "type": "object",
+          "properties": {
+            "material": { "type": "string" },
+            "weight": { "type": "string" },
+            "size": { "type": "string" },
+            "aboutProduct": { "type": "string" }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "price", "category", "childCategory", "image"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer purchase records",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "UID of the user who placed the order" },
+        "items": { "type": "array" },
+        "total": { "type": "number" },
+        "shippingDetails": { "type": "object" },
+        "status": { "type": "string", "enum": ["pending", "shipped", "delivered"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "items", "total", "shippingDetails"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile and roles",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "customer"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "categories": { "schema": "Category", "description": "Store categories" },
+    "products": { "schema": "Product", "description": "Store products" },
+    "orders": { "schema": "Order", "description": "Customer orders" },
+    "users": { "schema": "User", "description": "User accounts and roles" }
+  }
+}
