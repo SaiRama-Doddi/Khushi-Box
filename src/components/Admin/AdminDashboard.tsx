@@ -538,11 +538,11 @@ const AdminDashboard: React.FC = () => {
 
   if (isAdmin === false) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#020617] px-4 font-sans">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 font-sans">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full bg-[#1E293B] rounded-[2.5rem] shadow-2xl p-10 text-center border border-slate-800/50"
+          className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-10 text-center border border-slate-200"
         >
           <div className="size-20 bg-rose-500/10 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner">
             <LogOut size={40} />
@@ -562,7 +562,7 @@ const AdminDashboard: React.FC = () => {
 
   if (isAdmin === null || loading && categories.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#020617] font-sans">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 font-sans">
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
             <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full animate-pulse"></div>
@@ -753,10 +753,10 @@ const AdminDashboard: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {categories.map(cat => (
-                  <div key={cat.id} className="bg-[#1E293B] rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border border-slate-800/50 group relative flex flex-col shadow-xl hover:border-primary/30 transition-all duration-500">
+                  <div key={cat.id} className="bg-slate-100 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border border-slate-200 group relative flex flex-col shadow-xl hover:border-primary/30 transition-all duration-500">
                     <div className="h-40 md:h-48 bg-white relative overflow-hidden">
                       <img src={cat.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80" referrerPolicy="no-referrer" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#1E293B] to-transparent opacity-60"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-100 to-transparent opacity-60"></div>
                       <div className="absolute top-4 right-4 flex gap-2 lg:opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 lg:group-hover:translate-y-0">
                         <button 
                           onClick={() => setEditingItem({ type: 'category', ...cat })}
@@ -800,7 +800,7 @@ const AdminDashboard: React.FC = () => {
                               value={newSubcatName} 
                               onChange={e => setNewSubcatName(e.target.value)}
                               placeholder="Matrices (comma separated)"
-                              className="w-full text-xs px-4 py-3 rounded-xl bg-[#1E293B] border-slate-800 text-white h-20 placeholder:text-slate-700 outline-none border"
+                              className="w-full text-xs px-4 py-3 rounded-xl bg-white border-slate-300 text-slate-900 h-20 placeholder:text-slate-500 outline-none border"
                             />
                             <button 
                               onClick={() => addSubcategory(cat.id, cat.children)}
@@ -1157,7 +1157,7 @@ const AdminDashboard: React.FC = () => {
                 ))}
                 
                 {filteredOrders.length === 0 && (
-                  <div className="text-center py-32 bg-[#1E293B] rounded-[3rem] border border-dashed border-slate-800">
+                  <div className="text-center py-32 bg-slate-100 rounded-[3rem] border border-dashed border-slate-300">
                     <div className="size-20 bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-600">
                       <ShoppingBag size={40} />
                     </div>
@@ -1173,12 +1173,12 @@ const AdminDashboard: React.FC = () => {
         {/* Confirmation Modal */}
         <AnimatePresence>
           {confirmModal.show && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#020617]/90 backdrop-blur-md">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-md">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.9, y: 40 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 40 }}
-                className="bg-[#1E293B] w-full max-w-md rounded-3xl md:rounded-[2.5rem] border border-slate-800 shadow-2xl p-6 md:p-10 text-center"
+                className="bg-white w-full max-w-md rounded-3xl md:rounded-[2.5rem] border border-slate-200 shadow-2xl p-6 md:p-10 text-center"
               >
                 <div className={`size-16 md:size-20 mx-auto mb-6 md:mb-8 rounded-full flex items-center justify-center ${confirmModal.isAlert ? 'bg-primary/10 text-primary border-primary/20' : 'bg-rose-500/10 text-rose-500 border-rose-500/20'} border`}>
                   {confirmModal.isAlert ? <LayoutDashboard size={28} className="md:w-8 md:h-8" /> : <Trash2 size={28} className="md:w-8 md:h-8" />}
@@ -1211,7 +1211,7 @@ const AdminDashboard: React.FC = () => {
         {/* Edit Modal */}
         <AnimatePresence>
           {editingItem && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#020617]/90 backdrop-blur-md">
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-md">
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95, y: 40 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
