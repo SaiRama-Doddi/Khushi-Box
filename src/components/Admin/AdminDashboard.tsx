@@ -107,7 +107,8 @@ const AdminDashboard: React.FC = () => {
     isAlert: false
   });
 
-  const AVAILABLE_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
+  const WEARABLE_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
+  const AVAILABLE_SIZES = WEARABLE_SIZES;
 
   enum OperationType {
     CREATE = 'create',
@@ -574,7 +575,7 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] text-slate-100 flex font-sans selection:bg-primary/30">
+    <div className="min-h-screen bg-white text-slate-800 flex font-sans selection:bg-primary/30">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {showMobileSidebar && (
@@ -589,8 +590,8 @@ const AdminDashboard: React.FC = () => {
       </AnimatePresence>
 
       {/* Sidebar */}
-      <aside className={`w-72 bg-[#0F172A] border-r border-slate-800/50 flex flex-col fixed h-screen z-50 shadow-2xl transition-transform duration-300 lg:translate-x-0 ${showMobileSidebar ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-8 border-b border-slate-800/50 flex items-center justify-between">
+      <aside className={`w-72 bg-white border-r border-slate-200 flex flex-col fixed h-screen z-50 shadow-2xl transition-transform duration-300 lg:translate-x-0 ${showMobileSidebar ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-8 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="size-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
               <Package className="text-white" size={24} />
@@ -648,8 +649,8 @@ const AdminDashboard: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-72 min-h-screen">
-        <header className="sticky top-0 z-30 bg-[#020617]/80 backdrop-blur-xl border-b border-slate-800/50 px-6 md:px-12 py-6 md:py-8 flex justify-between items-center">
+      <main className="flex-1 lg:ml-72 min-h-screen bg-white text-slate-900">
+        <header className="sticky top-0 z-30 bg-white border-b border-slate-200 px-6 md:px-12 py-6 md:py-8 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setShowMobileSidebar(true)}
@@ -722,7 +723,7 @@ const AdminDashboard: React.FC = () => {
         <AnimatePresence mode="wait">
           {activeTab === 'categories' && (
             <motion.div key="cat" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 md:space-y-12">
-              <form onSubmit={addCategory} className="bg-[#1E293B] p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-slate-800/50 shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+              <form onSubmit={addCategory} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-slate-200 shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div className="md:col-span-2 flex items-center justify-between">
                   <h3 className="text-lg md:text-xl font-black text-white tracking-tight">Establish New Category</h3>
                   <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
@@ -731,7 +732,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Category Designation</label>
-                  <input value={catName} onChange={e => setCatName(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-slate-700 outline-none border" placeholder="e.g. LUXURY APPAREL" />
+                  <input value={catName} onChange={e => setCatName(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-slate-500 outline-none border" placeholder="e.g. LUXURY APPAREL" />
                 </div>
                 <div className="space-y-3">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">URL Identifier (Slug)</label>
@@ -880,6 +881,31 @@ const AdminDashboard: React.FC = () => {
                   </select>
                 </div>
 
+                {prodCat === 'wearables' && (
+                  <div className="md:col-span-2 space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Variant Matrix (Sizes)</label>
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                      {WEARABLE_SIZES.map(size => (
+                        <label key={size} className="flex items-center justify-center p-3 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-primary/50 transition-all">
+                          <input
+                            type="checkbox"
+                            value={size}
+                            checked={prodSizes.includes(size)}
+                            onChange={(e) => {
+                              const checked = e.target.checked;
+                              setProdSizes(prev => checked ? [...prev, size] : prev.filter(s => s !== size));
+                            }}
+                            className="hidden"
+                          />
+                          <span className={`text-[10px] font-black transition-colors ${prodSizes.includes(size) ? 'text-primary' : 'text-slate-500'}`}>
+                            {size}
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="space-y-3 md:col-span-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Primary Asset URL</label>
                   <input value={prodImage} onChange={e => setProdImage(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="HTTPS://..." />
@@ -928,10 +954,10 @@ const AdminDashboard: React.FC = () => {
                 </button>
               </form>
 
-              <div className="bg-[#1E293B] rounded-3xl md:rounded-[2.5rem] border border-slate-800/50 overflow-hidden shadow-2xl">
+              <div className="bg-white rounded-3xl md:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto custom-scrollbar">
                   <table className="w-full text-left min-w-[800px] md:min-w-0">
-                    <thead className="bg-[#0F172A] border-b border-slate-800/50">
+                    <thead className="bg-slate-100 border-b border-slate-200">
                       <tr>
                         <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Asset Profile</th>
                         <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hidden sm:table-cell">Matrix Mapping</th>
@@ -1190,15 +1216,15 @@ const AdminDashboard: React.FC = () => {
                 initial={{ opacity: 0, scale: 0.95, y: 40 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 40 }}
-                className="bg-[#1E293B] w-full max-w-2xl rounded-3xl md:rounded-[3rem] border border-slate-800 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+                className="bg-white w-full max-w-2xl rounded-3xl md:rounded-[3rem] border border-slate-200 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
               >
-                <div className="p-5 md:p-8 border-b border-slate-800/50 flex justify-between items-center bg-[#0F172A]/50">
+                <div className="p-5 md:p-8 border-b border-slate-200 flex justify-between items-center bg-white">
                   <div className="flex items-center gap-3 md:gap-4">
                     <div className="size-9 md:size-10 bg-primary/10 rounded-lg md:rounded-xl flex items-center justify-center text-primary border border-primary/20">
                       <Edit2 size={18} className="md:w-5 md:h-5" />
                     </div>
                     <div>
-                      <h3 className="font-black text-white uppercase tracking-[0.2em] text-[10px] md:text-xs">
+                      <h3 className="font-black text-slate-900 uppercase tracking-[0.2em] text-[10px] md:text-xs">
                         Refine {editingItem.type}
                       </h3>
                       <p className="text-[9px] md:text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Authorized Modification Portal</p>
@@ -1309,37 +1335,49 @@ const AdminDashboard: React.FC = () => {
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Master Asset URL</label>
                         <input name="image" defaultValue={editingItem.image} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
                       </div>
-                      <div className="flex items-center gap-4 py-4 bg-[#0F172A] px-6 rounded-2xl border border-slate-800/50">
+                      <div className="flex items-center gap-4 py-4 bg-white px-6 rounded-2xl border border-slate-200">
                         <label className="flex items-center gap-3 cursor-pointer group">
                           <input 
                             type="checkbox" 
                             name="inStock"
                             defaultChecked={editingItem.inStock !== false}
-                            className="size-5 rounded border-slate-800 bg-[#1E293B] text-primary focus:ring-primary/20"
+                            className="size-5 rounded border-slate-300 text-primary focus:ring-primary/20"
                           />
-                          <span className="text-[10px] font-black text-slate-400 group-hover:text-slate-200 uppercase tracking-widest transition-colors">Operational Logic (In Stock)</span>
+                          <span className="text-[10px] font-black text-slate-500 group-hover:text-slate-900 uppercase tracking-widest transition-colors">Operational Logic (In Stock)</span>
                         </label>
                       </div>
-                      <div className="md:col-span-2 space-y-4">
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Variant Matrix (Sizes)</label>
-                        <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
-                          {AVAILABLE_SIZES.map(size => (
-                            <label key={size} className="flex items-center justify-center p-3 rounded-xl border border-slate-800 bg-[#0F172A] cursor-pointer hover:border-primary/50 transition-all has-[:checked]:bg-primary/10 has-[:checked]:border-primary">
-                              <input 
-                                type="checkbox" 
-                                name="sizes"
-                                value={size}
-                                defaultChecked={editingItem.sizes?.includes(size)}
-                                className="hidden"
-                              />
-                                <span className="text-[10px] font-black text-slate-400 peer-checked:text-primary transition-colors">{size}</span>
-                            </label>
-                          ))}
+                      {(editingItem.category === 'wearables' || editingItem.category === 'Wearables') ? (
+                        <div className="md:col-span-2 space-y-4">
+                          <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Variant Matrix (Sizes)</label>
+                          <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                            {WEARABLE_SIZES.map(size => (
+                              <label key={size} className="flex items-center justify-center p-3 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-primary/50 transition-all">
+                                <input 
+                                  type="checkbox" 
+                                  name="sizes"
+                                  value={size}
+                                  defaultChecked={editingItem.sizes?.includes(size)}
+                                  className="hidden"
+                                />
+                                <span className={`text-[10px] font-black transition-colors ${editingItem.sizes?.includes(size) ? 'text-primary' : 'text-slate-500'}`}>
+                                  {size}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
                         </div>
-                      </div>
+                      ) : null}
                       <div className="md:col-span-2 space-y-3">
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Brief Description</label>
-                        <textarea name="description" defaultValue={editingItem.description} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium h-24 outline-none border" />
+                        <textarea name="description" defaultValue={editingItem.description} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-800 text-sm focus:ring-2 focus:ring-primary/20 font-medium h-24 outline-none border" />
+                      </div>
+                      <div className="md:col-span-2 space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Details / Specifications</label>
+                        <textarea name="details" defaultValue={typeof editingItem.details === 'string' ? editingItem.details : ''} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-800 text-sm focus:ring-2 focus:ring-primary/20 font-medium h-24 outline-none border" />
+                      </div>
+                      <div className="md:col-span-2 space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Key Features (comma separated)</label>
+                        <input name="keyFeatures" defaultValue={editingItem.keyFeatures?.join(', ')} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-800 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
                       </div>
                       <button type="submit" className="md:col-span-2 bg-primary text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-[0.98]">
                         Authorize Global Update
