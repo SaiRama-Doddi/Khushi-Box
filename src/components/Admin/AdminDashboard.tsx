@@ -1335,6 +1335,20 @@ const AdminDashboard: React.FC = () => {
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Master Asset URL</label>
                         <input name="image" defaultValue={editingItem.image} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
                       </div>
+                      <div className="md:col-span-2 space-y-3">
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Gallery Images (comma separated URLs)</label>
+                        <input name="images" defaultValue={editingItem.images?.join(', ')} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 md:col-span-2">
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Rating (0-5)</label>
+                          <input name="rating" type="number" min="0" max="5" step="0.1" defaultValue={editingItem.rating || 5} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Reviews Count</label>
+                          <input name="reviews" type="number" min="0" step="1" defaultValue={editingItem.reviews || 0} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                        </div>
+                      </div>
                       <div className="flex items-center gap-4 py-4 bg-white px-6 rounded-2xl border border-slate-200">
                         <label className="flex items-center gap-3 cursor-pointer group">
                           <input 
