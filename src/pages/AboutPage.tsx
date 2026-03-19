@@ -6,13 +6,18 @@ const AboutPage: React.FC = () => {
   return (
     <div className="bg-[#fdfcf8] min-h-screen">
       {/* Hero Section */}
-      <section className="relative h-[70vh] flex items-center justify-center overflow-hidden bg-[#1a2f2a]">
+      <section className="relative min-h-[60vh] md:min-h-[70vh] flex items-center justify-center overflow-hidden bg-[#1a2f2a]">
         <div className="absolute inset-0 opacity-40">
           <img 
             src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?q=80&w=2070&auto=format&fit=crop" 
             alt="Craftsmanship" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
             referrerPolicy="no-referrer"
+            loading="lazy"
+            onError={(e) => {
+              const target = e.currentTarget as HTMLImageElement;
+              target.src = 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=2070&auto=format&fit=crop';
+            }}
           />
         </div>
         <div className="relative z-10 text-center px-4">
@@ -43,6 +48,26 @@ const AboutPage: React.FC = () => {
         </h2>
         <div className="w-12 h-px bg-slate-200 mx-auto mb-12"></div>
         <p className="text-[10px] uppercase tracking-[0.3em] text-slate-400">Designed in Mumbai — Cherished Everywhere</p>
+      </section>
+
+      {/* Responsive Image Gallery Section */}
+      <section className="px-4 pb-24 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1495121605193-b116b5b09a36?q=80&w=1000&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1598300052746-6640589658dd?q=80&w=1000&auto=format&fit=crop'
+          ].map((src, idx) => (
+            <div key={idx} className="h-60 md:h-72 lg:h-80 rounded-xl overflow-hidden shadow-lg">
+              <img
+                src={src}
+                alt={`Studio view ${idx + 1}`}
+                className="w-full h-full object-cover object-center transition-transform duration-500 hover:scale-105"
+                loading="lazy"
+              />
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Split Section */}
