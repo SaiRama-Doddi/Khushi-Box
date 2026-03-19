@@ -4,18 +4,21 @@ export interface Product {
   id: string;
   name: string;
   category: string;
-  subcategory: string;
-  price: number;
+  subcategory?: string;
+  price?: number;
   originalPrice?: number;
   image: string;
   images?: string[];
   description: string;
-  details?: string;
+  details?: string | Record<string, string>;
   keyFeatures?: string[];
-  inStock: boolean;
+  inStock?: boolean;
   rating?: number;
   reviews?: number;
   sizes?: string[]; // For wearable items: S, M, L, XL, XXL
+  childCategory?: string;
+  actualPrice?: number;
+  offerPrice?: number;
   isNew?: boolean;
   isSale?: boolean;
   createdAt?: any;

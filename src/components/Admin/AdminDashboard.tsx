@@ -884,7 +884,44 @@ const AdminDashboard: React.FC = () => {
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Primary Asset URL</label>
                   <input value={prodImage} onChange={e => setProdImage(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="HTTPS://..." />
                 </div>
-                
+
+                <div className="space-y-3 md:col-span-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Gallery Images (comma separated URLs)</label>
+                  <input value={prodImages} onChange={e => setProdImages(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="https://... , https://..." />
+                  <p className="text-[10px] text-slate-500">Add 2-4 image links for the product gallery (optional, comma-separated).</p>
+                </div>
+
+                <div className="space-y-3 md:col-span-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Description</label>
+                  <textarea value={prodDesc} onChange={e => setProdDesc(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Add the product description" />
+                </div>
+
+                <div className="space-y-3 md:col-span-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Details / Specifications</label>
+                  <textarea value={prodDetails} onChange={e => setProdDetails(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Key details (e.g. size, material, usage)" />
+                </div>
+
+                <div className="space-y-3 md:col-span-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Key Features (comma separated)</label>
+                  <input value={prodKeyFeatures} onChange={e => setProdKeyFeatures(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Personalized Design, Non-slip Base, Stitched Edges" />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 md:col-span-2">
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Rating</label>
+                    <input type="number" min="0" max="5" step="0.1" value={prodRating} onChange={e => setProdRating(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" />
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Reviews Count</label>
+                    <input type="number" min="0" step="1" value={prodReviews} onChange={e => setProdReviews(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-[#0F172A] border-slate-800 text-white text-sm focus:ring-2 focus:ring-primary/10 outline-none border" />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 md:col-span-2">
+                  <input id="inStock" type="checkbox" checked={prodInStock} onChange={e => setProdInStock(e.target.checked)} className="accent-primary" />
+                  <label htmlFor="inStock" className="text-sm text-slate-300">In Stock</label>
+                </div>
+
                 <button type="submit" className="md:col-span-2 bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-[0.98] flex items-center justify-center gap-3">
                    {loading ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
                    {loading ? 'Processing...' : 'Deploy Product'}
@@ -899,6 +936,7 @@ const AdminDashboard: React.FC = () => {
                         <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Asset Profile</th>
                         <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hidden sm:table-cell">Matrix Mapping</th>
                         <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Valuation</th>
+                        <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Rating</th>
                         <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 text-right">Operations</th>
                       </tr>
                     </thead>
@@ -931,6 +969,10 @@ const AdminDashboard: React.FC = () => {
                                 <span className="text-[9px] md:text-[10px] text-slate-500 line-through tracking-widest font-bold uppercase truncate">₹{prod.originalPrice || prod.actualPrice}</span>
                               )}
                             </div>
+                          </td>
+                          <td className="px-6 md:px-10 py-5 md:py-6">
+                            <span className="text-[11px] font-black text-slate-200">{(prod.rating || 0).toFixed(1)} ⭐</span>
+                            <p className="text-[9px] text-slate-500">({prod.reviews || 0} reviews)</p>
                           </td>
                           <td className="px-6 md:px-10 py-5 md:py-6 text-right">
                             <div className="flex gap-2 md:gap-4 justify-end">
