@@ -55,8 +55,8 @@ const AboutPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1495121605193-b116b5b09a36?q=80&w=1000&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1598300052746-6640589658dd?q=80&w=1000&auto=format&fit=crop'
+            '/images/studio-2.png',
+            '/images/studio-3.png'
           ].map((src, idx) => (
             <div key={idx} className="h-60 md:h-72 lg:h-80 rounded-xl overflow-hidden shadow-lg">
               <img
@@ -74,10 +74,9 @@ const AboutPage: React.FC = () => {
       <section className="grid grid-cols-1 lg:grid-cols-2">
         <div className="h-[60vh] lg:h-auto overflow-hidden">
           <img 
-            src="https://images.unsplash.com/photo-1506806732259-39c2d4468673?q=80&w=2070&auto=format&fit=crop" 
+            src="/images/studio-wide.png" 
             alt="Studio" 
             className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
           />
         </div>
         <div className="bg-[#1a2f2a] text-white p-12 md:p-24 flex flex-col justify-center">

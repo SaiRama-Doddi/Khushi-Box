@@ -19,6 +19,7 @@ const ProductsPage: React.FC = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<string>('Latest');
 
   useEffect(() => {
     const categoryFromUrl = queryParams.get('category') || 'all';
@@ -49,14 +50,35 @@ const ProductsPage: React.FC = () => {
 
   const filteredProducts = products.filter(p => {
     const matchesCategory = selectedCategory === 'all' || p.category === selectedCategory;
-    const matchesSubcategory = selectedSubcategory === 'all' || p.childCategory === selectedSubcategory;
-    const matchesPrice = p.offerPrice <= priceRange;
+    const matchesSubcategory = selectedSubcategory === 'all' || 
+      p.childCategory === selectedSubcategory || 
+      p.subcategory === selectedSubcategory;
+    
+    const currentPrice = p.offerPrice ?? p.price ?? 0;
+    const matchesPrice = currentPrice <= priceRange;
+    
     const matchesSearch = !searchQuery || 
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (p.childCategory && p.childCategory.toLowerCase().includes(searchQuery.toLowerCase()));
+      (p.childCategory && p.childCategory.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (p.subcategory && p.subcategory.toLowerCase().includes(searchQuery.toLowerCase()));
     
     return matchesCategory && matchesSubcategory && matchesPrice && matchesSearch;
+  }).sort((a, b) => {
+    if (sortBy === 'Price: Low to High') {
+      const priceA = a.offerPrice ?? a.price ?? 0;
+      const priceB = b.offerPrice ?? b.price ?? 0;
+      return priceA - priceB;
+    }
+    if (sortBy === 'Price: High to Low') {
+      const priceA = a.offerPrice ?? a.price ?? 0;
+      const priceB = b.offerPrice ?? b.price ?? 0;
+      return priceB - priceA;
+    }
+    // Default: Latest (by createdAt)
+    const dateA = a.createdAt?.seconds || 0;
+    const dateB = b.createdAt?.seconds || 0;
+    return dateB - dateA;
   });
 
   const activeCategory = categories.find(c => c.slug === selectedCategory);
@@ -166,7 +188,11 @@ const ProductsPage: React.FC = () => {
               </p>
               <div className="flex items-center gap-2 mt-4 sm:mt-0">
                 <span className="text-[11px] uppercase tracking-widest text-slate-500">Sort By:</span>
-                <select className="bg-transparent text-[11px] uppercase tracking-widest font-bold text-slate-900 border-none focus:ring-0 cursor-pointer">
+                <select 
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-transparent text-[11px] uppercase tracking-widest font-bold text-slate-900 border-none focus:ring-0 cursor-pointer"
+                >
                   <option>Latest</option>
                   <option>Price: Low to High</option>
                   <option>Price: High to Low</option>

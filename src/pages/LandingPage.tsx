@@ -231,7 +231,7 @@ const LandingPage: React.FC = () => {
             </button>
           </div>
           <div className="w-full md:w-1/2 aspect-video bg-white/5 relative overflow-hidden">
-             <img src="https://images.unsplash.com/photo-1579548480749-9fd90c885e3b?auto=format&fit=crop&q=80" className="w-full h-full object-cover opacity-60 mix-blend-luminosity" alt="Club" />
+             <img src="/images/khushi-club.png" className="w-full h-full object-cover opacity-80" alt="Club" />
              <div className="absolute inset-0 border border-white/20 m-6 flex items-center justify-center">
                <span className="text-white text-3xl font-display italic">Khushi<br/>Experiences</span>
              </div>
