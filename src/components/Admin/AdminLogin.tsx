@@ -92,46 +92,48 @@ const AdminLogin: React.FC = () => {
         className="max-w-md w-full bg-white rounded-3xl shadow-xl p-8 border border-primary/10"
       >
         <div className="text-center mb-8">
-          <div className="size-16 bg-primary/10 text-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Lock size={32} />
-          </div>
-          <h2 className="text-3xl font-black text-slate-900">Admin Portal</h2>
-          <p className="text-slate-500 mt-2">Secure access for Khushi management</p>
+          <img 
+            src="https://res.cloudinary.com/dq7hun84m/image/upload/v1773765618/logo-main_jwi3jb.png"
+            alt="Khushi Logo"
+            className="size-20 object-contain mx-auto mb-4"
+          />
+          <h2 className="text-3xl font-black text-text-dark">Admin Portal</h2>
+          <p className="text-text-muted mt-2">Secure access for Khushi management</p>
         </div>
 
         <div className="space-y-4">
           <form onSubmit={handleLogin} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Email Address</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
                 <input 
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border-primary/20 bg-slate-50 focus:ring-primary focus:border-primary text-sm"
+                  className="w-full pl-12 pr-4 py-3 rounded-xl border-primary/20 bg-background-cream focus:ring-primary focus:border-primary text-sm"
                   placeholder="admin@khushi.com"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Password</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Password</label>
               <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
                 <input 
                    type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-12 py-3 rounded-xl border-primary/20 bg-slate-50 focus:ring-primary focus:border-primary text-sm"
+                  className="w-full pl-12 pr-12 py-3 rounded-xl border-primary/20 bg-background-cream focus:ring-primary focus:border-primary text-sm"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-primary transition-colors"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -153,7 +155,7 @@ const AdminLogin: React.FC = () => {
             <button 
               type="submit"
               disabled={loading}
-              className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-primary transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+              className="w-full bg-primary text-white py-4 rounded-xl font-bold uppercase tracking-widest shadow-lg hover:bg-primary-dark transition-all flex items-center justify-center gap-3 disabled:opacity-50"
             >
               {loading ? <Loader2 className="animate-spin" size={20} /> : 'Authorize Access'}
             </button>
@@ -163,15 +165,15 @@ const AdminLogin: React.FC = () => {
             <button 
               type="button"
               onClick={handleForgotPassword}
-              className="text-[10px] font-bold text-slate-400 hover:text-primary uppercase tracking-widest transition-colors"
+              className="text-[10px] font-bold text-text-muted hover:text-primary uppercase tracking-widest transition-colors"
             >
               Forgot Password?
             </button>
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-slate-100 text-center">
-          <p className="text-[10px] text-slate-400 uppercase tracking-widest">Authorized Personnel Only</p>
+        <div className="mt-8 pt-8 border-t border-background-tan text-center">
+          <p className="text-[10px] text-text-muted uppercase tracking-widest">Authorized Personnel Only</p>
         </div>
       </motion.div>
     </div>

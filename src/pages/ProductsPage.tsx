@@ -85,21 +85,21 @@ const ProductsPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-light">
+      <div className="min-h-screen flex items-center justify-center bg-background-cream">
         <Loader2 className="animate-spin text-primary" size={48} />
       </div>
     );
   }
 
   return (
-    <div className="bg-background-light min-h-screen">
+    <div className="bg-background-cream min-h-screen">
       {/* Page Header */}
-      <div className="bg-white border-b border-slate-100 py-12">
+      <div className="bg-background-tan/30 border-b border-background-tan py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl md:text-5xl font-display text-slate-900 mb-4">
+          <h1 className="text-3xl md:text-5xl font-display text-text-dark mb-4">
             {searchQuery ? `Results for "${searchQuery}"` : activeCategory ? activeCategory.name : 'All Collections'}
           </h1>
-          <p className="text-slate-500 font-light max-w-2xl mx-auto">
+          <p className="text-text-muted font-light max-w-2xl mx-auto">
             Explore our curated selection of premium pieces designed to add elegance and joy to your everyday life.
           </p>
         </div>
@@ -113,11 +113,11 @@ const ProductsPage: React.FC = () => {
               <div className="flex flex-col gap-8">
                 {/* Categories */}
                 <div>
-                  <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900 mb-6 border-b border-slate-200 pb-2">Collections</h4>
+                  <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-text-dark mb-6 border-b border-background-tan pb-2">Collections</h4>
                   <div className="flex flex-col gap-1">
                     <button 
                       onClick={() => setSelectedCategory('all')}
-                      className={`text-left text-[13px] py-2 transition-colors ${selectedCategory === 'all' ? 'text-primary font-bold' : 'text-slate-500 hover:text-slate-900'}`}
+                      className={`text-left text-[13px] py-2 transition-colors ${selectedCategory === 'all' ? 'text-primary font-bold' : 'text-text-muted hover:text-text-dark'}`}
                     >
                       All Collections
                     </button>
@@ -128,7 +128,7 @@ const ProductsPage: React.FC = () => {
                             setSelectedCategory(cat.slug);
                             setSelectedSubcategory('all');
                           }}
-                          className={`w-full text-left text-[13px] py-1 transition-colors ${selectedCategory === cat.slug ? 'text-primary font-bold' : 'text-slate-500 hover:text-slate-900'}`}
+                          className={`w-full text-left text-[13px] py-1 transition-colors ${selectedCategory === cat.slug ? 'text-primary font-bold' : 'text-text-muted hover:text-text-dark'}`}
                         >
                           {cat.name}
                         </button>
@@ -137,7 +137,7 @@ const ProductsPage: React.FC = () => {
                           <div className="pl-4 flex flex-col gap-1 mt-2 mb-2">
                             <button
                               onClick={() => setSelectedSubcategory('all')}
-                              className={`text-left text-[12px] py-1 transition-colors ${selectedSubcategory === 'all' ? 'text-slate-900 font-semibold' : 'text-slate-400 hover:text-slate-600'}`}
+                              className={`text-left text-[12px] py-1 transition-colors ${selectedSubcategory === 'all' ? 'text-text-dark font-semibold' : 'text-text-muted/60 hover:text-text-muted'}`}
                             >
                               All {cat.name}
                             </button>
@@ -145,7 +145,7 @@ const ProductsPage: React.FC = () => {
                               <button
                                 key={sub.id}
                                 onClick={() => setSelectedSubcategory(sub.slug)}
-                                className={`text-left text-[12px] py-1 transition-colors ${selectedSubcategory === sub.slug ? 'text-slate-900 font-semibold' : 'text-slate-400 hover:text-slate-600'}`}
+                                className={`text-left text-[12px] py-1 transition-colors ${selectedSubcategory === sub.slug ? 'text-text-dark font-semibold' : 'text-text-muted/60 hover:text-text-muted'}`}
                               >
                                 {sub.name}
                               </button>
@@ -159,7 +159,7 @@ const ProductsPage: React.FC = () => {
 
                 {/* Price Range */}
                 <div>
-                  <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-900 mb-6 border-b border-slate-200 pb-2">Price Range</h4>
+                  <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-text-dark mb-6 border-b border-background-tan pb-2">Price Range</h4>
                   <div className="pt-2 px-1">
                     <input 
                       type="range" 
@@ -168,9 +168,9 @@ const ProductsPage: React.FC = () => {
                       step="100"
                       value={priceRange}
                       onChange={(e) => setPriceRange(parseInt(e.target.value))}
-                      className="w-full h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-slate-900"
+                      className="w-full h-1 bg-background-tan rounded-lg appearance-none cursor-pointer accent-primary"
                     />
-                    <div className="flex justify-between mt-4 text-[10px] uppercase tracking-widest text-slate-500">
+                    <div className="flex justify-between mt-4 text-[10px] uppercase tracking-widest text-text-muted">
                       <span>₹0</span>
                       <span>₹{priceRange}+</span>
                     </div>
@@ -182,16 +182,16 @@ const ProductsPage: React.FC = () => {
 
           {/* Product Grid */}
           <section className="flex-1">
-            <div className="flex flex-col sm:flex-row justify-between items-center mb-8 pb-4 border-b border-slate-200">
-              <p className="text-[11px] uppercase tracking-widest text-slate-500">
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-8 pb-4 border-b border-background-tan">
+              <p className="text-[11px] uppercase tracking-widest text-text-muted">
                 Showing {filteredProducts.length} items
               </p>
               <div className="flex items-center gap-2 mt-4 sm:mt-0">
-                <span className="text-[11px] uppercase tracking-widest text-slate-500">Sort By:</span>
+                <span className="text-[11px] uppercase tracking-widest text-text-muted">Sort By:</span>
                 <select 
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="bg-transparent text-[11px] uppercase tracking-widest font-bold text-slate-900 border-none focus:ring-0 cursor-pointer"
+                  className="bg-transparent text-[11px] uppercase tracking-widest font-bold text-text-dark border-none focus:ring-0 cursor-pointer"
                 >
                   <option>Latest</option>
                   <option>Price: Low to High</option>
@@ -207,15 +207,15 @@ const ProductsPage: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-32 bg-white border border-slate-100">
-                <p className="text-slate-400 font-light text-lg">No treasures found matching your criteria.</p>
+              <div className="text-center py-32 bg-background-tan/10 border border-background-tan">
+                <p className="text-text-muted/60 font-light text-lg">No treasures found matching your criteria.</p>
                 <button 
                   onClick={() => {
                     setSelectedCategory('all');
                     setSelectedSubcategory('all');
                     setSearchQuery('');
                   }}
-                  className="mt-6 text-[11px] uppercase tracking-widest font-bold text-primary hover:text-slate-900 transition-colors border-b border-primary hover:border-slate-900 pb-1"
+                  className="mt-6 text-[11px] uppercase tracking-widest font-bold text-primary hover:text-text-dark transition-colors border-b border-primary hover:border-text-dark pb-1"
                 >
                   Clear all filters
                 </button>

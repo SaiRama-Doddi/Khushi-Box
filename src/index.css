@@ -1,21 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Manrope:wght@200;300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-display: "Cormorant Garamond", serif;
-  --font-sans: "Manrope", sans-serif;
-  --color-primary: #C5A059;
-  --color-primary-dark: #A6864A;
-  --color-accent-red: #8B0000;
-  --color-background-light: #FAFAFA;
-  --color-background-dark: #1e1a14;
+  --font-display: "Arial", sans-serif;
+  --font-sans: "Arial", sans-serif;
+  --color-primary: #B45F52; /* Maroon */
+  --color-primary-light: #C97D72;
+  --color-primary-dark: #8E4A40;
+  --color-secondary: #D4AF37; /* Gold - keeping as a secondary accent */
+  --color-background-cream: #F5F2ED; /* Cream */
+  --color-background-tan: #E8E2D9; 
+  --color-background-light: #FAF9F6; /* Off-white/Light Cream */
+  --color-text-dark: #2C1810; 
+  --color-text-muted: #6B5E59; 
 }
 
 @layer base {
   body {
-    @apply font-sans bg-background-light text-slate-900;
+    @apply font-sans bg-background-cream text-text-dark antialiased;
   }
-  h1, h2, h3, .font-serif {
-    @apply font-display tracking-tight;
+  h1, h2, h3, h4, .font-serif {
+    @apply font-display tracking-tight leading-tight text-text-dark;
+  }
+}
+
+@layer components {
+  .premium-btn {
+    @apply px-10 py-4 text-[11px] uppercase tracking-[0.2em] font-bold transition-all duration-500 ease-out;
+  }
+  .premium-btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark;
+  }
+  .premium-btn-outline {
+    @apply border border-primary text-primary hover:bg-primary hover:text-white;
+  }
+  .section-padding {
+    @apply py-16 md:py-32;
+  }
+  .content-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .link-hover {
+    @apply relative after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-px after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
   }
 }

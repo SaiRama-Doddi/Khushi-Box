@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Star, ShoppingBag, Heart } from 'lucide-react';
+import { ShoppingBag, Heart, Star } from 'lucide-react';
 import { Product } from '../types';
 import { motion } from 'motion/react';
 import { useCart } from '../context/CartContext';
@@ -21,11 +21,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (product.sizes && product.sizes.length > 0) {
-      showToast('Please select a variation first');
-      navigate(`/product/${product.id}`);
-      return;
-    }
     addToCart(product);
     showToast(`${product.name} added to bag!`);
   };
@@ -45,60 +40,52 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="group flex flex-col bg-transparent"
+      className="group flex flex-col bg-background-cream"
     >
-      <Link to={`/product/${product.id}`} className="relative aspect-[4/5] overflow-hidden bg-slate-50 rounded-sm mb-4">
+      <Link to={`/product/${product.id}`} className="relative aspect-[4/5] overflow-hidden bg-background-tan mb-6">
         <img 
           src={product.image} 
           alt={product.name}
-          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+          className="h-full w-full object-cover transition-transform duration-1000 ease-out group-hover:scale-110"
           referrerPolicy="no-referrer"
         />
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-          {product.isSale && (
-            <span className="bg-slate-900 text-white text-[9px] font-bold px-3 py-1.5 uppercase tracking-widest">Sale</span>
-          )}
-          {product.isNew && (
-            <span className="bg-white text-slate-900 text-[9px] font-bold px-3 py-1.5 uppercase tracking-widest border border-slate-200">New</span>
-          )}
-        </div>
+        
+        {/* Wishlist Button - Minimal */}
         <button 
           onClick={handleWishlistToggle}
-          className={`absolute top-3 right-3 p-2 transition-colors z-10 duration-300 ${isWishlisted ? 'text-rose-500 opacity-100' : 'text-slate-400 hover:text-rose-500 opacity-100 lg:opacity-0 group-hover:opacity-100'}`}
+          className={`absolute top-4 right-4 p-2.5 bg-background-cream/80 backdrop-blur-sm rounded-full transition-all duration-300 shadow-sm ${isWishlisted ? 'text-primary scale-110' : 'text-text-muted hover:text-primary opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0'}`}
         >
-          <Heart size={18} strokeWidth={isWishlisted ? 2.5 : 1.5} className={isWishlisted ? 'fill-rose-500' : ''} />
+          <Heart size={16} strokeWidth={isWishlisted ? 2.5 : 1.5} className={isWishlisted ? 'fill-primary' : ''} />
         </button>
-        <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-          <span className="bg-white/95 backdrop-blur-sm text-slate-900 font-bold uppercase tracking-widest text-[10px] py-3 px-8 shadow-sm transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 hover:bg-slate-900 hover:text-white">
-            Quick View
-          </span>
+
+        {/* Quick Add Overlay */}
+        <div className="absolute inset-x-0 bottom-0 p-4 translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+           <button 
+            onClick={handleAddToCart}
+            className="w-full bg-primary text-white text-[10px] uppercase tracking-[0.2em] font-bold py-4 shadow-xl hover:bg-primary-dark transition-colors"
+           >
+             Quick Add +
+           </button>
         </div>
       </Link>
-      <div className="flex flex-col gap-1 px-1">
-        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{product.category}</p>
-        <Link to={`/product/${product.id}`} className="text-slate-900 font-medium text-[14px] leading-snug hover:text-primary transition-colors line-clamp-2 mt-1">
+
+      <div className="flex flex-col text-center px-2">
+        <p className="text-[9px] font-bold text-primary uppercase tracking-[0.3em] mb-2">{product.childCategory || product.category}</p>
+        <Link to={`/product/${product.id}`} className="text-text-dark font-display text-[18px] md:text-[20px] font-medium leading-snug hover:text-primary transition-colors line-clamp-1">
           {product.name}
         </Link>
-        <div className="flex items-center gap-1.5 mt-2">
-          <Star size={10} className="fill-slate-900 text-slate-900" />
-          <span className="text-[11px] text-slate-500">{product.rating || '5.0'} ({product.reviews || '0'})</span>
+        
+        <div className="flex items-center justify-center gap-1 mt-2 mb-3">
+           {[...Array(5)].map((_, i) => (
+             <Star key={i} size={8} className={`${i < Math.floor(product.rating || 5) ? 'fill-primary text-primary' : 'text-background-tan'}`} />
+           ))}
+           <span className="text-[10px] text-text-muted ml-1">({product.rating || '5.0'})</span>
         </div>
-        <div className="flex items-center justify-between mt-3">
-          <div className="flex items-baseline gap-2">
-            <span className="text-[15px] font-semibold text-slate-900">₹{product.price || product.offerPrice}</span>
-            {(product.originalPrice || product.actualPrice) && (product.originalPrice || product.actualPrice) > (product.price || product.offerPrice) && (
-              <span className="text-slate-400 text-xs line-through font-light">₹{product.originalPrice || product.actualPrice}</span>
-            )}
-          </div>
-          <button 
-            onClick={handleAddToCart}
-            className="p-2 border border-slate-200 rounded-full text-slate-600 hover:text-white hover:bg-slate-900 hover:border-slate-900 transition-all focus:outline-none"
-          >
-            <ShoppingBag size={14} strokeWidth={2} />
-          </button>
+
+        <div className="mb-4">
+          <span className="text-[15px] font-bold text-text-dark tracking-wider">₹{product.price}</span>
         </div>
       </div>
     </motion.div>
   );
 };
-

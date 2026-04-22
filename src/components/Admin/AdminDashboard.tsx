@@ -10,6 +10,7 @@ import {
   doc, 
   query, 
   orderBy,
+  where,
   Timestamp 
 } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
@@ -198,6 +199,62 @@ const AdminDashboard: React.FC = () => {
       fetchData();
     }
   }, [activeTab, isAdmin]);
+
+  const syncWithConstants = async () => {
+    setLoading(true);
+    try {
+      const { CATEGORIES, PRODUCTS } = await import('../../constants');
+      
+      // 1. Sync Categories
+      for (const cat of CATEGORIES) {
+        const catQuery = query(collection(db, 'categories'), where('slug', '==', cat.slug));
+        const catSnap = await getDocs(catQuery);
+        
+        const catData = {
+          name: cat.name,
+          slug: cat.slug,
+          children: cat.children,
+          updatedAt: Timestamp.now()
+        };
+
+        if (catSnap.empty) {
+          await addDoc(collection(db, 'categories'), { ...catData, createdAt: Timestamp.now() });
+        } else {
+          await updateDoc(doc(db, 'categories', catSnap.docs[0].id), catData);
+        }
+      }
+
+      // 2. Sync Products
+      for (const prod of PRODUCTS) {
+        const prodQuery = query(collection(db, 'products'), where('id', '==', prod.id));
+        const prodSnap = await getDocs(prodQuery);
+        
+        const prodData = {
+          ...prod,
+          updatedAt: Timestamp.now()
+        };
+
+        if (prodSnap.empty) {
+          await addDoc(collection(db, 'products'), { ...prodData, createdAt: Timestamp.now() });
+        } else {
+          await updateDoc(doc(db, 'products', prodSnap.docs[0].id), prodData);
+        }
+      }
+
+      setConfirmModal({
+        show: true,
+        title: 'Sync Complete',
+        message: 'Successfully synchronized categories and products from constants.',
+        isAlert: true,
+        onConfirm: () => setConfirmModal(prev => ({ ...prev, show: false }))
+      });
+      fetchData();
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, 'sync');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchData = async () => {
     if (!isAdmin) return;
@@ -411,7 +468,7 @@ const AdminDashboard: React.FC = () => {
         originalPrice: parseFloat(prodOriginalPrice) || 0,
         price: parseFloat(prodPrice) || 0,
         category: prodCat,
-        subcategory: prodSubcategory,
+        childCategory: prodSubcategory,
         image: prodImage,
         images: prodImages.split(',').map(s => s.trim()).filter(s => s),
         description: prodDesc,
@@ -538,11 +595,11 @@ const AdminDashboard: React.FC = () => {
 
   if (isAdmin === false) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 font-sans">
+      <div className="min-h-screen flex items-center justify-center bg-background-cream px-4 font-sans">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-10 text-center border border-slate-200"
+          className="max-w-md w-full bg-white rounded-[2.5rem] shadow-2xl p-10 text-center border border-background-tan"
         >
           <div className="size-20 bg-rose-500/10 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-inner">
             <LogOut size={40} />
@@ -562,7 +619,7 @@ const AdminDashboard: React.FC = () => {
 
   if (isAdmin === null || loading && categories.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 font-sans">
+      <div className="min-h-screen flex items-center justify-center bg-background-cream font-sans">
         <div className="flex flex-col items-center gap-6">
           <div className="relative">
             <div className="absolute inset-0 bg-primary/20 blur-2xl rounded-full animate-pulse"></div>
@@ -575,7 +632,7 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-800 flex font-sans selection:bg-primary/30">
+    <div className="min-h-screen bg-white text-text-dark flex font-sans selection:bg-primary/30">
       {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {showMobileSidebar && (
@@ -590,27 +647,29 @@ const AdminDashboard: React.FC = () => {
       </AnimatePresence>
 
       {/* Sidebar */}
-      <aside className={`w-72 bg-white border-r border-slate-200 flex flex-col fixed h-screen z-50 shadow-2xl transition-transform duration-300 lg:translate-x-0 ${showMobileSidebar ? 'translate-x-0' : '-translate-x-full'}`}>
-        <div className="p-8 border-b border-slate-200 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="size-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-              <Package className="text-white" size={24} />
-            </div>
+      <aside className={`w-72 bg-white border-r border-background-tan flex flex-col fixed h-screen z-50 shadow-2xl transition-transform duration-300 lg:translate-x-0 ${showMobileSidebar ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="p-8 border-b border-background-tan flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <img 
+              src="https://res.cloudinary.com/dq7hun84m/image/upload/v1773765618/logo-main_jwi3jb.png"
+              alt="Khushi Logo"
+              className="size-12 object-contain"
+            />
             <div>
-              <h1 className="text-xl font-black tracking-tighter text-white">Khushi Admin</h1>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest italic">Management Portal</p>
+              <h1 className="text-xl font-black tracking-tighter text-text-dark">Khushi Admin</h1>
+              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest italic">Management Portal</p>
             </div>
           </div>
-          <button 
-            onClick={() => setShowMobileSidebar(false)}
-            className="lg:hidden text-slate-400 hover:text-white transition-colors"
-          >
+            <button 
+              onClick={() => setShowMobileSidebar(false)}
+              className="lg:hidden text-black/40 hover:text-black transition-colors"
+            >
             <X size={20} />
           </button>
         </div>
 
         <nav className="flex-1 p-6 space-y-2 overflow-y-auto custom-scrollbar">
-          <p className="text-[10px] font-black text-slate-600 uppercase tracking-[0.3em] mb-4 ml-2">Console</p>
+          <p className="text-[10px] font-black text-black/60 uppercase tracking-[0.3em] mb-4 ml-2">Console</p>
           {[
             { id: 'orders', label: 'Orders', icon: ShoppingBag },
             { id: 'products', label: 'Products', icon: Package },
@@ -625,7 +684,7 @@ const AdminDashboard: React.FC = () => {
               className={`w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold transition-all duration-300 ${
                 activeTab === item.id 
                   ? 'bg-primary text-white shadow-xl shadow-primary/20' 
-                  : 'text-slate-500 hover:bg-slate-800/50 hover:text-slate-200 uppercase tracking-widest'
+                  : 'text-black/60 hover:bg-black/5 hover:text-black uppercase tracking-widest'
               }`}
             >
               <item.icon size={20} className={activeTab === item.id ? 'animate-pulse' : ''} />
@@ -637,7 +696,7 @@ const AdminDashboard: React.FC = () => {
           ))}
         </nav>
 
-        <div className="p-6 border-t border-slate-800/50">
+        <div className="p-6 border-t border-black/5">
           <button 
             onClick={() => signOut(auth)}
             className="w-full flex items-center gap-4 px-5 py-4 rounded-2xl text-sm font-bold text-rose-400 hover:bg-rose-500/10 transition-all duration-300 group"
@@ -649,8 +708,8 @@ const AdminDashboard: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-72 min-h-screen bg-white text-slate-900">
-        <header className="sticky top-0 z-30 bg-white border-b border-slate-200 px-6 md:px-12 py-6 md:py-8 flex justify-between items-center">
+      <main className="flex-1 lg:ml-72 min-h-screen bg-white text-text-dark">
+        <header className="sticky top-0 z-30 bg-white border-b border-background-tan px-6 md:px-12 py-6 md:py-8 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setShowMobileSidebar(true)}
@@ -659,8 +718,8 @@ const AdminDashboard: React.FC = () => {
               <Menu size={24} />
             </button>
             <div>
-              <h2 className="text-xl md:text-3xl font-black text-white tracking-tight capitalize leading-none">{activeTab}</h2>
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">
+              <h2 className="text-xl md:text-3xl font-black text-text-dark tracking-tight capitalize leading-none">{activeTab}</h2>
+              <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">
                 {isAdmin ? 'System Pulse • Active' : 'Restricted Access'}
               </p>
             </div>
@@ -668,7 +727,7 @@ const AdminDashboard: React.FC = () => {
           
           <div className="flex items-center gap-3 md:gap-6">
             <div className="hidden sm:flex flex-col items-end">
-              <p className="text-sm font-bold text-white tracking-tight">{auth.currentUser?.email}</p>
+              <p className="text-sm font-bold text-text-dark tracking-tight">{auth.currentUser?.email}</p>
               <span className="text-[10px] font-black text-primary uppercase tracking-[0.25em]">Master Control</span>
             </div>
             <div className="size-10 md:size-12 rounded-2xl bg-gradient-to-br from-primary to-primary-dark shadow-lg shadow-primary/20 flex items-center justify-center font-black text-white text-lg md:text-xl uppercase tracking-tighter shadow-inner">
@@ -681,26 +740,17 @@ const AdminDashboard: React.FC = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 md:mb-12">
             <div>
               <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-2">Management Terminal</p>
-              <h1 className="text-3xl md:text-5xl font-black text-white tracking-tighter capitalize">{activeTab}</h1>
+              <h1 className="text-3xl md:text-5xl font-black text-text-dark tracking-tighter capitalize">{activeTab}</h1>
             </div>
             <div className="flex flex-wrap items-center gap-3 md:gap-4">
-              {categories.length === 0 && (
-                <button 
-                  onClick={seedRequirements}
-                  className="bg-primary/10 text-primary px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border border-primary/20 hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5"
-                >
-                  Regenerate Core Matrix
-                </button>
-              )}
-              {activeTab === 'products' && products.length === 0 && (
-                <button 
-                  onClick={seedProducts}
-                  className="bg-primary/10 text-primary px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border border-primary/20 hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5"
-                >
-                  Inject Sample Data
-                </button>
-              )}
-              <div className="bg-emerald-500/10 text-emerald-500 px-3 md:px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-emerald-500/20 shadow-sm animate-pulse whitespace-nowrap">
+              <button 
+                onClick={syncWithConstants}
+                className="bg-primary/10 text-primary px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border border-primary/20 hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5 flex items-center gap-2"
+              >
+                <CheckCircle2 size={14} />
+                Synchronize Global Matrix
+              </button>
+              <div className="bg-secondary/10 text-secondary px-3 md:px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-secondary/20 shadow-sm animate-pulse whitespace-nowrap">
                 {loading ? 'Synchronizing...' : 'Network Stable'}
               </div>
             </div>
@@ -723,28 +773,28 @@ const AdminDashboard: React.FC = () => {
         <AnimatePresence mode="wait">
           {activeTab === 'categories' && (
             <motion.div key="cat" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 md:space-y-12">
-              <form onSubmit={addCategory} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-slate-200 shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+              <form onSubmit={addCategory} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-background-tan shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 <div className="md:col-span-2 flex items-center justify-between">
-                  <h3 className="text-lg md:text-xl font-black text-white tracking-tight">Establish New Category</h3>
+                  <h3 className="text-lg md:text-xl font-black text-text-dark tracking-tight">Establish New Category</h3>
                   <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
                     <Plus size={20} />
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Category Designation</label>
-                  <input value={catName} onChange={e => setCatName(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-slate-500 outline-none border" placeholder="e.g. LUXURY APPAREL" />
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted ml-1">Category Designation</label>
+                  <input value={catName} onChange={e => setCatName(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-background-tan text-text-dark text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-text-muted outline-none border" placeholder="e.g. LUXURY APPAREL" />
                 </div>
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">URL Identifier (Slug)</label>
-                  <input value={catSlug} onChange={e => setCatSlug(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-slate-700 outline-none border" placeholder="e.g. luxury-apparel" />
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted ml-1">URL Identifier (Slug)</label>
+                  <input value={catSlug} onChange={e => setCatSlug(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-background-tan text-text-dark text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-text-muted outline-none border" placeholder="e.g. luxury-apparel" />
                 </div>
                 <div className="space-y-3 md:col-span-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Sub-Matrices (Comma separated)</label>
-                  <input value={catSubcats} onChange={e => setCatSubcats(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-slate-700 outline-none border" placeholder="e.g. Mugs, Frames, Clocks" />
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted ml-1">Sub-Matrices (Comma separated)</label>
+                  <input value={catSubcats} onChange={e => setCatSubcats(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-background-tan text-text-dark text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-text-muted outline-none border" placeholder="e.g. Mugs, Frames, Clocks" />
                 </div>
                 <div className="space-y-3 md:col-span-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Visual Asset URL</label>
-                  <input value={catImage} onChange={e => setCatImage(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-slate-700 outline-none border" placeholder="https://source.unsplash.com/assets/..." />
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted ml-1">Visual Asset URL</label>
+                  <input value={catImage} onChange={e => setCatImage(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-background-tan text-text-dark text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-text-muted outline-none border" placeholder="https://source.unsplash.com/assets/..." />
                 </div>
                 <button type="submit" className="md:col-span-2 bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-[0.98] flex items-center justify-center gap-3">
                   <Plus size={20} /> Initialize Category
@@ -753,7 +803,7 @@ const AdminDashboard: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 {categories.map(cat => (
-                  <div key={cat.id} className="bg-slate-100 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border border-slate-200 group relative flex flex-col shadow-xl hover:border-primary/30 transition-all duration-500">
+                  <div key={cat.id} className="bg-background-tan/30 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border border-background-tan group relative flex flex-col shadow-xl hover:border-primary/30 transition-all duration-500">
                     <div className="h-40 md:h-48 bg-white relative overflow-hidden">
                       <img src={cat.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80" referrerPolicy="no-referrer" />
                       <div className="absolute inset-0 bg-gradient-to-t from-slate-100 to-transparent opacity-60"></div>
@@ -839,41 +889,41 @@ const AdminDashboard: React.FC = () => {
 
           {activeTab === 'products' && (
             <motion.div key="prod" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
-              <form onSubmit={addProduct} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-slate-200 shadow-lg grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                <div className="md:col-span-2 flex items-center justify-between">
-                  <h3 className="text-lg md:text-xl font-black text-slate-900 tracking-tight">Index New Product</h3>
+              <form onSubmit={addProduct} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-black/5 shadow-lg grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+                <div className="md:col-span-3 flex items-center justify-between">
+                  <h3 className="text-lg md:text-xl font-black text-black tracking-tight">Index New Product</h3>
                   <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
                     <Plus size={20} />
                   </div>
                 </div>
                 
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Product Title</label>
-                  <input value={prodName} onChange={e => setProdName(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium outline-none border" placeholder="E.G. SIGNATURE COLLECTION" />
+                <div className="space-y-3 md:col-span-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Product Title</label>
+                  <input value={prodName} onChange={e => setProdName(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium outline-none border" placeholder="E.G. SIGNATURE COLLECTION" />
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 md:col-span-1">
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">MSRP (₹)</label>
-                    <input type="number" step="1" value={prodOriginalPrice} onChange={e => setProdOriginalPrice(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none border" />
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">MSRP (₹)</label>
+                    <input type="number" step="1" value={prodOriginalPrice} onChange={e => setProdOriginalPrice(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none border" />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Listing Price (₹)</label>
-                    <input type="number" step="1" value={prodPrice} onChange={e => setProdPrice(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 transition-all outline-none border" />
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Listing Price (₹)</label>
+                    <input type="number" step="1" value={prodPrice} onChange={e => setProdPrice(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 transition-all outline-none border" />
                   </div>
                 </div>
                 
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Core Matrix (Category)</label>
-                  <select value={prodCat} onChange={e => setProdCat(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 transition-all font-medium appearance-none outline-none border">
+                <div className="space-y-3 md:col-span-1">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Core Matrix (Category)</label>
+                  <select value={prodCat} onChange={e => setProdCat(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 transition-all font-medium appearance-none outline-none border">
                     <option value="" className="bg-white">Select Domain</option>
                     {categories.map(c => <option key={c.id} value={c.slug} className="bg-white">{c.name}</option>)}
                   </select>
                 </div>
                 
-                <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Sub-Matrix (Subcategory)</label>
-                  <select value={prodSubcategory} onChange={e => setProdSubcategory(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 appearance-none outline-none border">
+                <div className="space-y-3 md:col-span-1">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Sub-Matrix (Subcategory)</label>
+                  <select value={prodSubcategory} onChange={e => setProdSubcategory(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 appearance-none outline-none border">
                     <option value="" className="bg-white">Select Protocol</option>
                     {categories.find(c => c.slug === prodCat)?.children?.map((child: any) => (
                       <option key={child.id} value={child.slug} className="bg-white">{child.name}</option>
@@ -882,11 +932,11 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 {prodCat === 'wearables' && (
-                  <div className="md:col-span-2 space-y-4">
-                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Variant Matrix (Sizes)</label>
+                  <div className="md:col-span-3 space-y-4">
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Variant Matrix (Sizes)</label>
                     <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
                       {WEARABLE_SIZES.map(size => (
-                        <label key={size} className="flex items-center justify-center p-3 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-primary/50 transition-all">
+                        <label key={size} className="flex items-center justify-center p-3 rounded-xl border border-black/5 bg-white cursor-pointer hover:border-primary/50 transition-all">
                           <input
                             type="checkbox"
                             value={size}
@@ -897,7 +947,7 @@ const AdminDashboard: React.FC = () => {
                             }}
                             className="hidden"
                           />
-                          <span className={`text-[10px] font-black transition-colors ${prodSizes.includes(size) ? 'text-primary' : 'text-slate-500'}`}>
+                          <span className={`text-[10px] font-black transition-colors ${prodSizes.includes(size) ? 'text-primary' : 'text-black/40'}`}>
                             {size}
                           </span>
                         </label>
@@ -906,25 +956,25 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 )}
 
-                <div className="space-y-3 md:col-span-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Primary Asset URL</label>
-                  <input value={prodImage} onChange={e => setProdImage(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="HTTPS://..." />
+                <div className="space-y-3 md:col-span-3">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Primary Asset URL</label>
+                  <input value={prodImage} onChange={e => setProdImage(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="HTTPS://..." />
                 </div>
 
-                <div className="space-y-3 md:col-span-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Gallery Images (comma separated URLs)</label>
-                  <input value={prodImages} onChange={e => setProdImages(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="https://... , https://..." />
-                  <p className="text-[10px] text-slate-500">Add 2-4 image links for the product gallery (optional, comma-separated).</p>
+                <div className="space-y-3 md:col-span-3">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Gallery Images (comma separated URLs)</label>
+                  <input value={prodImages} onChange={e => setProdImages(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="https://... , https://..." />
+                  <p className="text-[10px] text-black/40">Add 2-4 image links for the product gallery (optional, comma-separated).</p>
                 </div>
 
-                <div className="space-y-3 md:col-span-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Description</label>
-                  <textarea value={prodDesc} onChange={e => setProdDesc(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Add the product description" />
+                <div className="space-y-3 md:col-span-3">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Description</label>
+                  <textarea value={prodDesc} onChange={e => setProdDesc(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Add the product description" />
                 </div>
 
-                <div className="space-y-3 md:col-span-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Details / Specifications</label>
-                  <textarea value={prodDetails} onChange={e => setProdDetails(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Key details (e.g. size, material, usage)" />
+                <div className="space-y-3 md:col-span-3">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Details / Specifications</label>
+                  <textarea value={prodDetails} onChange={e => setProdDetails(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Key details (e.g. size, material, usage)" />
                 </div>
 
                 <div className="space-y-3 md:col-span-2">
@@ -932,50 +982,49 @@ const AdminDashboard: React.FC = () => {
                   <input value={prodKeyFeatures} onChange={e => setProdKeyFeatures(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Personalized Design, Non-slip Base, Stitched Edges" />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 md:col-span-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 md:col-span-3">
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Rating</label>
-                    <input type="number" min="0" max="5" step="0.1" value={prodRating} onChange={e => setProdRating(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" />
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Rating</label>
+                    <input type="number" min="0" max="5" step="0.1" value={prodRating} onChange={e => setProdRating(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" />
                   </div>
                   <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Reviews Count</label>
-                    <input type="number" min="0" step="1" value={prodReviews} onChange={e => setProdReviews(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" />
+                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Reviews Count</label>
+                    <input type="number" min="0" step="1" value={prodReviews} onChange={e => setProdReviews(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" />
+                  </div>
+                  <div className="flex items-center gap-3 pt-8">
+                    <input id="inStock" type="checkbox" checked={prodInStock} onChange={e => setProdInStock(e.target.checked)} className="accent-primary" />
+                    <label htmlFor="inStock" className="text-sm text-black/60">In Stock</label>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 md:col-span-2">
-                  <input id="inStock" type="checkbox" checked={prodInStock} onChange={e => setProdInStock(e.target.checked)} className="accent-primary" />
-                  <label htmlFor="inStock" className="text-sm text-slate-300">In Stock</label>
-                </div>
-
-                <button type="submit" className="md:col-span-2 bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-[0.98] flex items-center justify-center gap-3">
+                <button type="submit" className="md:col-span-3 bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-[0.98] flex items-center justify-center gap-3">
                    {loading ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
                    {loading ? 'Processing...' : 'Deploy Product'}
                 </button>
               </form>
 
-              <div className="bg-white rounded-3xl md:rounded-[2.5rem] border border-slate-200 overflow-hidden shadow-2xl">
+              <div className="bg-white rounded-3xl md:rounded-[2.5rem] border border-black/5 overflow-hidden shadow-2xl">
                 <div className="overflow-x-auto custom-scrollbar">
                   <table className="w-full text-left min-w-[800px] md:min-w-0">
-                    <thead className="bg-slate-100 border-b border-slate-200">
+                    <thead className="bg-background-cream border-b border-black/5">
                       <tr>
-                        <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Asset Profile</th>
-                        <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 hidden sm:table-cell">Matrix Mapping</th>
-                        <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Valuation</th>
-                        <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Rating</th>
-                        <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 text-right">Operations</th>
+                        <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-black/40">Asset Profile</th>
+                        <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-black/40 hidden sm:table-cell">Matrix Mapping</th>
+                        <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-black/40">Valuation</th>
+                        <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-black/40">Rating</th>
+                        <th className="px-6 md:px-10 py-5 md:py-6 text-[10px] font-black uppercase tracking-[0.3em] text-black/40 text-right">Operations</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200">
                       {products.map(prod => (
-                        <tr key={prod.id} className="hover:bg-slate-100 transition-colors group">
+                        <tr key={prod.id} className="hover:bg-background-cream transition-colors group">
                           <td className="px-6 md:px-10 py-5 md:py-6">
                             <div className="flex items-center gap-4 md:gap-6">
-                              <div className="size-12 md:size-16 rounded-xl md:rounded-2xl bg-white border border-slate-200 overflow-hidden shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-500">
+                              <div className="size-12 md:size-16 rounded-xl md:rounded-2xl bg-white border border-black/5 overflow-hidden shrink-0 shadow-sm group-hover:scale-110 transition-transform duration-500">
                                 <img src={prod.image} className="w-full h-full object-cover opacity-90 group-hover:opacity-100" referrerPolicy="no-referrer" />
                               </div>
                               <div className="flex flex-col min-w-0">
-                                <span className="font-black text-slate-900 tracking-tight truncate max-w-[150px] md:max-w-none">{prod.name}</span>
+                                <span className="font-black text-black tracking-tight truncate max-w-[150px] md:max-w-none">{prod.name}</span>
                                 <span className={`text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] mt-1 ${prod.inStock !== false ? 'text-emerald-500' : 'text-rose-500 animate-pulse'}`}>
                                   {prod.inStock !== false ? 'Online' : 'Offline'}
                                 </span>
@@ -984,27 +1033,27 @@ const AdminDashboard: React.FC = () => {
                           </td>
                           <td className="px-6 md:px-10 py-5 md:py-6 hidden sm:table-cell">
                             <div className="flex flex-col">
-                              <span className="text-xs font-black text-slate-300 uppercase tracking-widest">{prod.category}</span>
-                              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1">{prod.subcategory || prod.childCategory}</span>
+                              <span className="text-xs font-black text-black/20 uppercase tracking-widest">{prod.category}</span>
+                              <span className="text-[10px] text-black/40 font-bold uppercase tracking-[0.2em] mt-1">{prod.subcategory || prod.childCategory}</span>
                             </div>
                           </td>
                           <td className="px-6 md:px-10 py-5 md:py-6">
                             <div className="flex flex-col">
-                              <span className="text-base md:text-lg font-black text-slate-900">₹{prod.price || prod.offerPrice}</span>
+                              <span className="text-base md:text-lg font-black text-black">₹{prod.price || prod.offerPrice}</span>
                               {(prod.originalPrice || prod.actualPrice) && (
-                                <span className="text-[9px] md:text-[10px] text-slate-500 line-through tracking-widest font-bold uppercase truncate">₹{prod.originalPrice || prod.actualPrice}</span>
+                                <span className="text-[9px] md:text-[10px] text-black/40 line-through tracking-widest font-bold uppercase truncate">₹{prod.originalPrice || prod.actualPrice}</span>
                               )}
                             </div>
                           </td>
                           <td className="px-6 md:px-10 py-5 md:py-6">
-                            <span className="text-[11px] font-black text-slate-700">{(prod.rating || 0).toFixed(1)} ⭐</span>
-                            <p className="text-[9px] text-slate-500">({prod.reviews || 0} reviews)</p>
+                            <span className="text-[11px] font-black text-black">{(prod.rating || 0).toFixed(1)} ⭐</span>
+                            <p className="text-[9px] text-black/40">({prod.reviews || 0} reviews)</p>
                           </td>
                           <td className="px-6 md:px-10 py-5 md:py-6 text-right">
                             <div className="flex gap-2 md:gap-4 justify-end">
                               <button 
                                 onClick={() => setEditingItem({ type: 'product', ...prod })}
-                                className="size-9 md:size-10 bg-slate-100 rounded-lg md:rounded-xl flex items-center justify-center text-slate-600 hover:text-primary hover:bg-primary/10 transition-all border border-slate-200 shadow-sm"
+                                className="size-9 md:size-10 bg-background-cream rounded-lg md:rounded-xl flex items-center justify-center text-black/40 hover:text-primary hover:bg-primary/10 transition-all border border-black/5 shadow-sm"
                               >
                                 <Edit2 size={16} className="md:w-[18px] md:h-[18px]" />
                               </button>
@@ -1293,7 +1342,7 @@ const AdminDashboard: React.FC = () => {
                           originalPrice: parseFloat(formData.get('originalPrice') as string),
                           price: parseFloat(formData.get('price') as string),
                           category: formData.get('category'),
-                          subcategory: formData.get('subcategory'),
+                          childCategory: formData.get('subcategory'),
                           image: formData.get('image'),
                           images: images,
                           sizes: sizes,

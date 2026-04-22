@@ -38,8 +38,8 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background-light">
-        <div className="text-primary font-serif italic text-2xl animate-pulse">Khushi...</div>
+      <div className="min-h-screen flex items-center justify-center bg-background-cream">
+        <div className="text-primary font-display italic text-4xl animate-pulse">Khushi Box</div>
       </div>
     );
   }

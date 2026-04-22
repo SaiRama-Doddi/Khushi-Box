@@ -1,126 +1,149 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
-import { db } from '../firebase';
-import { collection, getDocs, query, limit, orderBy } from 'firebase/firestore';
-import { ProductCard } from '../components/ProductCard';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Hammer, Zap, Award, Loader2, Star, Quote } from 'lucide-react';
-import { REVIEWS } from '../constants';
+import { ArrowRight, Star, ChevronRight } from 'lucide-react';
+import { ProductCard } from '../components/ProductCard';
+import { PRODUCTS, CATEGORIES } from '../constants';
 
 const LandingPage: React.FC = () => {
-  const [categories, setCategories] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % REVIEWS.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const catSnap = await getDocs(query(collection(db, 'categories'), limit(6)));
-        const prodSnap = await getDocs(query(collection(db, 'products'), orderBy('createdAt', 'desc'), limit(8)));
-        
-        setCategories(catSnap.docs.map(d => ({ id: d.id, ...d.data() })));
-        setProducts(prodSnap.docs.map(d => ({ id: d.id, ...d.data() })));
-      } catch (err: any) {
-        console.error("Error fetching landing data:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background-light">
-        <Loader2 className="animate-spin text-primary" size={48} />
-      </div>
-    );
-  }
+  // Select featured products
+  const bestSellers = PRODUCTS.slice(0, 4);
+  const newArrivals = PRODUCTS.slice(4, 12);
+  const magnetsHighlight = PRODUCTS.filter(p => p.category === 'magnets').slice(0, 4);
 
   return (
-    <div className="flex flex-col bg-background-light">
+    <div className="flex flex-col bg-background-cream overflow-hidden">
       
-      {/* Premium Hero Section */}
-      <section className="relative h-[550px] md:h-[650px] flex items-center overflow-hidden bg-[#F9F6F0]">
-        <div className="absolute inset-0 flex">
-          {/* Left side text background */}
-          <div className="w-1/2 h-full bg-gradient-to-r from-[#e8dcc4] to-[#f4ecd8] hidden md:block"></div>
-          {/* Right side image */}
-          <div className="w-full md:w-1/2 h-full relative">
-            <img 
-              className="w-full h-full object-cover" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzAHSBM2tvUomz9i0jzOGT27wln5lqKnxE43STSwKgGbVqsZB-9iWB4iT_ni2Ek09C64fFWUgtwEuhkiYsqCs3PVnCvPrlu-vO679M26lWWteAE3c9YnefNMSPIKQcoktJAdLAv5i3IurPpnIHMoM08x_x-vFIKJgH8_mpjkdTLX2g-GOt4wKazErBgn3PLpkbzT8b3TPcsqx0RzfaRLtRmR6ok72YLPtDBfttHnG9FVi0R2tAAy_pfIYs60wmbxHd3ZzdiUrFK4I" 
-              alt="Hero Background"
-              referrerPolicy="no-referrer"
-            />
-            {/* Mobile gradient overlay for text readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent block md:hidden"></div>
-          </div>
+      {/* 1. Premium Hero Unit */}
+      <section className="relative h-[calc(100vh-140px)] flex items-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img 
+            className="w-full h-full object-cover brightness-95" 
+            src="/images/hero.png" 
+            alt="Premium Gift"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent"></div>
         </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div className="content-container relative z-10">
           <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="max-w-xl md:w-1/2 md:pr-12"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="max-w-2xl"
           >
-            <p className="inline-block text-primary-dark text-[11px] font-bold uppercase tracking-[0.3em] mb-4 md:text-primary-dark text-white/90">
-              The Art of Gifting
+            <p className="text-white text-[11px] font-bold uppercase tracking-[0.4em] mb-4 animate-in slide-in-from-bottom duration-1000">
+              The Bespoke Collection
             </p>
-            <h2 className="text-5xl md:text-[5rem] font-medium leading-[1.1] mb-6 text-white md:text-slate-900 tracking-tight">
-              The magic of <br/><span className="italic font-light">Elegance</span>
-            </h2>
-            <p className="text-white/90 md:text-slate-600 text-[15px] md:text-base mb-10 max-w-md leading-relaxed font-light">
-              Discover our premium collection of bespoke gifts crafted with love, precision, and an unforgettable touch of luxury.
+            <h1 className="text-5xl md:text-[6rem] font-medium leading-[0.85] text-white mb-6">
+              The Art of<br/>
+              <span className="italic font-light">Gifting</span>
+            </h1>
+            <p className="text-white/80 text-base md:text-lg font-light mb-8 max-w-lg leading-relaxed">
+              Curating unforgettable moments with our hand-selected collection of personalised treasures and essentials.
             </p>
-            <div className="flex flex-wrap gap-5">
-              <Link to="/products" className="px-10 py-4 bg-slate-900 hover:bg-black text-white text-[11px] uppercase tracking-widest font-bold transition-all duration-300">
-                Explore Collection
+            <div className="flex gap-6">
+              <Link to="/products" className="premium-btn bg-white text-text-dark border border-white hover:bg-transparent hover:text-white transition-all duration-500">
+                Explore Shop
+              </Link>
+              <Link to="/about" className="premium-btn border border-white text-white hover:bg-white hover:text-text-dark transition-all duration-500">
+                Our Story
               </Link>
             </div>
           </motion.div>
         </div>
+        
+        {/* Scroll Indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
+           <span className="text-white/50 text-[9px] uppercase tracking-[0.3em] font-bold">Scroll</span>
+           <div className="w-px h-12 bg-gradient-to-b from-white/50 to-transparent"></div>
+        </div>
       </section>
 
-      {/* Categories Grid (Shop by Occasion) */}
-      <section className="py-12 md:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 md:mb-16">
-            <h3 className="text-3xl md:text-4xl font-medium mb-4 text-slate-900">Curated Categories</h3>
-            <div className="h-0.5 w-16 bg-primary mx-auto"></div>
+      {/* 2. Tier 1: Curated Best Sellers */}
+      <section className="section-padding bg-background-cream">
+        <div className="content-container">
+          <div className="flex flex-col md:flex-row items-end justify-between mb-16 gap-6">
+            <div>
+              <p className="text-primary text-[10px] font-bold uppercase tracking-[0.4em] mb-4">Most Coveted</p>
+              <h2 className="text-4xl md:text-5xl font-medium">Bestsellers of the Season</h2>
+            </div>
+            <Link to="/products" className="group flex items-center gap-3 text-[11px] font-bold uppercase tracking-widest text-text-dark border-b border-text-dark pb-1">
+              Shop All Selection
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform duration-300" />
+            </Link>
           </div>
-          <div className="flex flex-wrap justify-center gap-6 md:gap-10 lg:gap-12">
-            {categories.map((cat, idx) => (
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+            {bestSellers.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 3. Editorial Section: Lifestyle Banner */}
+      <section className="relative h-[600px] flex items-center overflow-hidden bg-background-tan">
+        <div className="absolute inset-0 flex flex-col md:flex-row">
+          <div className="w-full md:w-1/2 h-full order-2 md:order-1 flex items-center justify-center bg-background-cream p-12 md:p-24">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1 }}
+              className="max-w-md text-center md:text-left"
+            >
+              <p className="text-primary text-[10px] font-bold uppercase tracking-[0.4em] mb-6">Unforgettable</p>
+              <h2 className="text-4xl md:text-5xl font-medium mb-8 leading-tight">Anniversary<br/><span className="italic font-light">Masterpieces</span></h2>
+              <p className="text-text-muted font-light leading-relaxed mb-10">
+                Celebrate the beauty of time and shared memories with our curated sets designed to capture the essence of your journey together.
+              </p>
+              <Link to="/products?category=personalised-gifts" className="premium-btn premium-btn-outline inline-block">
+                Shop Collections
+              </Link>
+            </motion.div>
+          </div>
+          <div className="w-full md:w-1/2 h-full order-1 md:order-2">
+            <img 
+              src="/images/anniversary.png" 
+              className="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-1000"
+              alt="Anniversary Gift"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* 4. Category Grid: Modern Circles/Squares */}
+      <section className="section-padding bg-background-cream">
+        <div className="content-container">
+          <div className="text-center mb-20">
+            <p className="text-primary text-[10px] font-bold uppercase tracking-[0.4em] mb-4">Explore our universe</p>
+            <h2 className="text-4xl md:text-5xl font-medium">Collections of Choice</h2>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            {CATEGORIES.map((cat, idx) => (
               <motion.div 
                 key={cat.id}
-                className="w-[42vw] sm:w-40 md:w-48 lg:w-52 xl:w-56"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1, duration: 0.6 }}
-                viewport={{ once: true, margin: "-100px" }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.2, duration: 0.8 }}
               >
-                <Link to={`/products?category=${cat.slug}`} className="group flex flex-col items-center gap-4">
-                  <div className="w-full aspect-[4/5] overflow-hidden bg-slate-100">
-                    <img 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                      src={cat.image} 
-                      alt={cat.name} 
-                      referrerPolicy="no-referrer" 
-                    />
+                <Link to={`/products?category=${cat.slug}`} className="group relative block aspect-[3/4] overflow-hidden bg-background-tan">
+                  <img 
+                    src={cat.image || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=2115&auto=format&fit=crop"} 
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 brightness-[0.85] group-hover:brightness-100"
+                    alt={cat.name}
+                  />
+                  <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
+                  <div className="absolute inset-x-8 bottom-8 text-white">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2">{cat.children?.length} Subsets</p>
+                    <h3 className="text-3xl font-medium mb-4">{cat.name}</h3>
+                    <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
+                      Explore Shop <ChevronRight size={14} />
+                    </div>
                   </div>
-                  <span className="text-[13px] font-bold uppercase tracking-widest text-slate-900 group-hover:text-primary transition-colors">
-                    {cat.name}
-                  </span>
                 </Link>
               </motion.div>
             ))}
@@ -128,139 +151,104 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Trending Products */}
-      <section className="py-12 md:py-24 bg-background-light">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-end justify-between mb-8 md:mb-16 gap-4 md:gap-6 border-b border-slate-200 pb-4 md:pb-6">
-            <div>
-              <h3 className="text-3xl md:text-4xl font-medium text-slate-900 mb-2">Trending Now</h3>
-              <p className="text-slate-500 text-sm font-light">The most coveted pieces of the season</p>
+      {/* 5. Dark Accent Section: Iconic Piece Highlight */}
+      <section className="bg-background-tan py-24 md:py-40 text-text-dark relative overflow-hidden border-y border-primary/10">
+        {/* Subtle noise pattern or gradient */}
+        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+        
+        <div className="content-container relative z-10">
+          <div className="flex flex-col md:flex-row items-center gap-20">
+            <div className="w-full md:w-1/2 order-2 md:order-1">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.2 }}
+                className="relative aspect-square md:aspect-[4/5] bg-background-cream border border-primary/10 group overflow-hidden"
+              >
+                <img 
+                  src="/images/iconic.png" 
+                  className="w-full h-full object-cover opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all duration-1000"
+                  alt="Iconic Piece"
+                />
+                <div className="absolute inset-0 border-[30px] border-background-tan/50 pointer-events-none"></div>
+              </motion.div>
             </div>
-            <Link to="/products" className="text-[11px] font-bold uppercase tracking-widest text-slate-900 hover:text-primary transition-colors flex items-center gap-2 group">
-              View All <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-            </Link>
+            
+            <div className="w-full md:w-1/2 order-1 md:order-2">
+              <p className="text-secondary text-[10px] font-bold uppercase tracking-[0.4em] mb-6">Iconic Design</p>
+              <h2 className="text-5xl md:text-7xl font-medium mb-8 leading-tight">The Funky<br/><span className="italic font-light">Expression</span></h2>
+              <p className="text-text-muted font-light text-lg mb-12 leading-relaxed">
+                Discover our signature collection of funky magnets that turn everyday spaces into canvases of personality. Each piece is a statement of wit and style.
+              </p>
+              <div className="space-y-6 mb-12">
+                <div className="flex items-center gap-4">
+                   <div className="w-12 h-px bg-primary"></div>
+                   <p className="text-[11px] font-bold uppercase tracking-widest text-text-dark/70">Meticulously Crafted</p>
+                </div>
+                <div className="flex items-center gap-4">
+                   <div className="w-12 h-px bg-primary/30"></div>
+                   <p className="text-[11px] font-bold uppercase tracking-widest text-text-dark/70">Durable High-Definition Print</p>
+                </div>
+                <div className="flex items-center gap-4">
+                   <div className="w-12 h-px bg-primary/30"></div>
+                   <p className="text-[11px] font-bold uppercase tracking-widest text-text-dark/70">Unique Sarcastic Wit</p>
+                </div>
+              </div>
+              <Link to="/products?category=magnets" className="premium-btn bg-background-cream text-text-dark border border-background-cream hover:bg-transparent hover:text-white transition-all duration-500">
+                Shop Magnet Collection
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Tier 2: New Arrivals Lifestyle Grid */}
+      <section className="section-padding bg-background-cream">
+        <div className="content-container">
+          <div className="text-center mb-20">
+             <p className="text-primary text-[10px] font-bold uppercase tracking-[0.4em] mb-4">Just Arrived</p>
+             <h2 className="text-4xl md:text-5xl font-medium mb-6">Gifts for Everyone</h2>
+             <div className="h-0.5 w-16 bg-primary mx-auto"></div>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-            {products.length > 0 ? (
-              products.slice(0, 4).map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))
-            ) : (
-              <div className="col-span-full text-center py-20 bg-white border border-slate-100">
-                <p className="text-slate-400 font-medium italic">New treasures arriving soon...</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {newArrivals.slice(0, 8).map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+          
+          <div className="mt-20 text-center">
+             <Link to="/products" className="premium-btn premium-btn-outline inline-block">
+               View All Arrivals
+             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* 7. Fine Features Section */}
+      <section className="py-20 bg-background-cream border-t border-background-tan">
+        <div className="content-container">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:divide-x divide-background-tan">
+              <div className="text-center px-4">
+                 <p className="text-2xl font-serif italic text-secondary mb-6">✧</p>
+                 <h4 className="text-[11px] font-bold uppercase tracking-[0.3em] mb-4">Elegant Presentation</h4>
+                 <p className="text-[13px] font-light text-text-muted leading-relaxed">Every gift is arrived in our signature luxury packaging, ready to enchant.</p>
               </div>
-            )}
-          </div>
+              <div className="text-center px-4">
+                 <p className="text-2xl font-serif italic text-secondary mb-6">✧</p>
+                 <h4 className="text-[11px] font-bold uppercase tracking-[0.3em] mb-4">Curated Quality</h4>
+                 <p className="text-[13px] font-light text-text-muted leading-relaxed">We source only the finest materials to ensure each piece lasts a lifetime.</p>
+              </div>
+              <div className="text-center px-4">
+                 <p className="text-2xl font-serif italic text-secondary mb-6">✧</p>
+                 <h4 className="text-[11px] font-bold uppercase tracking-[0.3em] mb-4">Concierge Service</h4>
+                 <p className="text-[13px] font-light text-text-muted leading-relaxed">Our styling experts are here to help you select the perfect gift for every occasion.</p>
+              </div>
+           </div>
         </div>
       </section>
 
-      {/* Signature Collection Display */}
-      <section className="py-12 md:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 md:mb-16">
-            <h3 className="text-3xl md:text-4xl font-medium mb-4 text-slate-900">Our Signature Collection</h3>
-            <div className="h-0.5 w-16 bg-primary mx-auto"></div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Hardcoded illustrative signature collection boxes */}
-            <div className="group relative aspect-[3/4] overflow-hidden bg-slate-100 flex items-center justify-center">
-               <img src="https://images.unsplash.com/photo-1606760227091-3dd870d97f1d?auto=format&fit=crop&q=80" className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-90" alt="Home Decor" />
-               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500"></div>
-               <div className="relative z-10 text-center text-white border border-white/50 p-8 m-6 backdrop-blur-sm bg-black/10">
-                 <h4 className="font-display text-2xl mb-2">Home Decor</h4>
-                 <p className="text-[10px] uppercase tracking-[0.2em] mb-4">Timeless Elegance</p>
-                 <Link to="/products" className="text-[11px] uppercase tracking-widest border-b border-white pb-1 hover:text-primary hover:border-primary transition-colors">Shop Now</Link>
-               </div>
-            </div>
-            <div className="group relative aspect-[3/4] overflow-hidden bg-slate-100 flex items-center justify-center">
-               <img src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?auto=format&fit=crop&q=80" className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-90" alt="Gifting" />
-               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500"></div>
-               <div className="relative z-10 text-center text-white border border-white/50 p-8 m-6 backdrop-blur-sm bg-black/10">
-                 <h4 className="font-display text-2xl mb-2">Corporate Gifting</h4>
-                 <p className="text-[10px] uppercase tracking-[0.2em] mb-4">Impress with the best</p>
-                 <Link to="/products" className="text-[11px] uppercase tracking-widest border-b border-white pb-1 hover:text-primary hover:border-primary transition-colors">Shop Now</Link>
-               </div>
-            </div>
-            <div className="group relative aspect-[3/4] overflow-hidden bg-slate-100 flex items-center justify-center">
-               <img src="https://images.unsplash.com/photo-1577083046162-8e7ac61eb3aa?auto=format&fit=crop&q=80" className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 opacity-90" alt="Festive" />
-               <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500"></div>
-               <div className="relative z-10 text-center text-white border border-white/50 p-8 m-6 backdrop-blur-sm bg-black/10">
-                 <h4 className="font-display text-2xl mb-2">Festive Specials</h4>
-                 <p className="text-[10px] uppercase tracking-[0.2em] mb-4">Celebrate with Joy</p>
-                 <Link to="/products" className="text-[11px] uppercase tracking-widest border-b border-white pb-1 hover:text-primary hover:border-primary transition-colors">Shop Now</Link>
-               </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* New Arrivals (Rest of products) */}
-      {products.length > 4 && (
-        <section className="py-12 md:py-24 bg-background-light">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-8 md:mb-16">
-              <h3 className="text-3xl md:text-4xl font-medium mb-4 text-slate-900">New Arrivals</h3>
-              <div className="h-0.5 w-16 bg-primary mx-auto"></div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
-              {products.slice(4).map(product => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-            <div className="mt-8 md:mt-16 text-center">
-               <Link to="/products" className="inline-block px-10 py-4 border border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white text-[11px] uppercase tracking-widest font-bold transition-all duration-300">
-                 View All Products
-               </Link>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Elegant Promo Banner */}
-      <section className="bg-slate-900 text-white py-16 md:py-24 flex items-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex flex-col md:flex-row items-center gap-12">
-          <div className="w-full md:w-1/2">
-            <p className="text-primary text-[11px] uppercase tracking-[0.2em] font-bold mb-4">Exclusive Member Perks</p>
-            <h2 className="text-4xl md:text-5xl font-medium mb-6 font-display">Join the Khushi Club</h2>
-            <p className="text-slate-400 font-light leading-relaxed mb-8 max-w-md">
-              Unlock early access to our limited-edition releases, receive a complimentary gift on your birthday, and enjoy effortless concierge service tailored to your styling and gifting needs.
-            </p>
-            <button className="px-10 py-4 bg-primary text-white text-[11px] uppercase tracking-widest font-bold hover:bg-primary-dark transition-colors border border-transparent hover:border-primary-dark">
-              Register Now
-            </button>
-          </div>
-          <div className="w-full md:w-1/2 aspect-video bg-white/5 relative overflow-hidden">
-             <img src="/images/khushi-club.png" className="w-full h-full object-cover opacity-80" alt="Club" />
-             <div className="absolute inset-0 border border-white/20 m-6 flex items-center justify-center">
-               <span className="text-white text-3xl font-display italic">Khushi<br/>Experiences</span>
-             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="py-12 md:py-20 bg-white border-t border-slate-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12 text-center divide-y md:divide-y-0 md:divide-x divide-slate-100">
-            <div className="p-4">
-              <span className="block text-primary text-xl mb-4">✧</span>
-              <h5 className="text-[12px] uppercase tracking-widest font-bold text-slate-900 mb-2">Bespoke Design</h5>
-              <p className="text-[13px] text-slate-500 font-light">Meticulously crafted with rare materials.</p>
-            </div>
-            <div className="p-4 pt-8 md:pt-4">
-              <span className="block text-primary text-xl mb-4">✧</span>
-              <h5 className="text-[12px] uppercase tracking-widest font-bold text-slate-900 mb-2">Complimentary Shipping</h5>
-              <p className="text-[13px] text-slate-500 font-light">On all orders spanning over ₹1999.</p>
-            </div>
-            <div className="p-4 pt-8 md:pt-4">
-              <span className="block text-primary text-xl mb-4">✧</span>
-              <h5 className="text-[12px] uppercase tracking-widest font-bold text-slate-900 mb-2">The Perfect Gift</h5>
-              <p className="text-[13px] text-slate-500 font-light">Signature packaging included.</p>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 };

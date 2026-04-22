@@ -27,7 +27,7 @@ const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#fdfcf8] min-h-screen">
+    <div className="bg-background-cream min-h-screen">
       {/* Banner Image */}
       <div className="h-[40vh] w-full relative overflow-hidden">
         <img 
@@ -52,7 +52,7 @@ const ContactPage: React.FC = () => {
         <motion.span 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-[10px] uppercase tracking-[0.5em] text-slate-400 mb-6 block"
+          className="text-[10px] uppercase tracking-[0.5em] text-text-muted mb-6 block"
         >
           Inquiries
         </motion.span>
@@ -63,35 +63,35 @@ const ContactPage: React.FC = () => {
           {/* Contact Info */}
           <div className="space-y-16">
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-slate-900 mb-8">Contact Details</h3>
+              <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-text-dark mb-8">Contact Details</h3>
               <div className="space-y-8">
                 <div className="flex items-start gap-6">
-                  <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-background-tan/30 flex items-center justify-center shrink-0">
                     <Mail size={20} className="text-primary" />
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-slate-400 mb-1">Email Us</p>
-                    <p className="text-lg font-light text-slate-900">hellokhushibox@gmail.com</p>
-                    <p className="text-xs text-slate-400 mt-1 italic">Response within 24 hours</p>
+                    <p className="text-[10px] uppercase tracking-widest text-text-muted mb-1">Email Us</p>
+                    <p className="text-lg font-light text-text-dark">hellokhushibox@gmail.com</p>
+                    <p className="text-xs text-text-muted mt-1 italic">Response within 24 hours</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-6">
-                  <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-background-tan/30 flex items-center justify-center shrink-0">
                     <Phone size={20} className="text-primary" />
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-slate-400 mb-1">WhatsApp & Call</p>
-                    <p className="text-lg font-light text-slate-900">+{BUSINESS_PHONE}</p>
-                    <p className="text-xs text-slate-400 mt-1 italic">Mon-Sat, 10 AM - 6 PM IST</p>
+                    <p className="text-[10px] uppercase tracking-widest text-text-muted mb-1">WhatsApp & Call</p>
+                    <p className="text-lg font-light text-text-dark">+{BUSINESS_PHONE}</p>
+                    <p className="text-xs text-text-muted mt-1 italic">Mon-Sat, 10 AM - 6 PM IST</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-6">
-                  <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-full bg-background-tan/30 flex items-center justify-center shrink-0">
                     <MapPin size={20} className="text-primary" />
                   </div>
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest text-slate-400 mb-1">Studio Location</p>
-                    <p className="text-lg font-light text-slate-900">
+                    <p className="text-[10px] uppercase tracking-widest text-text-muted mb-1">Studio Location</p>
+                    <p className="text-lg font-light text-text-dark">
                       Flat No-1302, Block 1, Aditya Imperial Heights,<br />
                       Manjeera Pipeline Road, Hafeezpet,<br />
                       500049 Hyderabad, India
@@ -109,7 +109,7 @@ const ContactPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="rounded-3xl overflow-hidden border border-slate-100 shadow-sm h-64 grayscale hover:grayscale-0 transition-all duration-700">
+            <div className="rounded-3xl overflow-hidden border border-background-tan shadow-sm h-64 grayscale hover:grayscale-0 transition-all duration-700">
               <iframe 
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3805.534604646453!2d78.3512345!3d17.4812345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb939777777777%3A0x7777777777777777!2sAditya%20Imperial%20Heights!5e0!3m2!1sen!2sin!4v1710500000000!5m2!1sen!2sin" 
                 width="100%" 
@@ -122,8 +122,8 @@ const ContactPage: React.FC = () => {
             </div>
 
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-slate-900 mb-8">Follow Our Journey</h3>
-              <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <h3 className="text-xs font-bold uppercase tracking-[0.3em] text-text-dark mb-8">Follow Our Journey</h3>
+              <div className="flex gap-8 text-[10px] font-bold uppercase tracking-widest text-text-muted">
                 <a href="#" className="hover:text-primary transition-colors">Instagram</a>
                 <a href="#" className="hover:text-primary transition-colors">Pinterest</a>
                 <a href="#" className="hover:text-primary transition-colors">LinkedIn</a>
@@ -132,26 +132,26 @@ const ContactPage: React.FC = () => {
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white p-8 md:p-12 rounded-3xl border border-slate-100 shadow-sm">
+          <div className="bg-background-cream p-8 md:p-12 rounded-3xl border border-background-tan shadow-sm">
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Your Name</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Your Name</label>
                   <input 
                     required
                     type="text"
-                    className="w-full border-b border-slate-200 py-3 focus:border-primary outline-none transition-colors text-sm font-light"
+                    className="w-full border-b border-background-tan bg-transparent py-3 focus:border-primary outline-none transition-colors text-sm font-light text-text-dark"
                     placeholder="Enter your name"
                     value={formData.name}
                     onChange={e => setFormData({...formData, name: e.target.value})}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Email Address</label>
+                  <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Email Address</label>
                   <input 
                     required
                     type="email"
-                    className="w-full border-b border-slate-200 py-3 focus:border-primary outline-none transition-colors text-sm font-light"
+                    className="w-full border-b border-background-tan bg-transparent py-3 focus:border-primary outline-none transition-colors text-sm font-light text-text-dark"
                     placeholder="Enter your email"
                     value={formData.email}
                     onChange={e => setFormData({...formData, email: e.target.value})}
@@ -159,22 +159,22 @@ const ContactPage: React.FC = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Subject</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Subject</label>
                 <input 
                   required
                   type="text"
-                  className="w-full border-b border-slate-200 py-3 focus:border-primary outline-none transition-colors text-sm font-light"
+                  className="w-full border-b border-background-tan bg-transparent py-3 focus:border-primary outline-none transition-colors text-sm font-light text-text-dark"
                   placeholder="What is this regarding?"
                   value={formData.subject}
                   onChange={e => setFormData({...formData, subject: e.target.value})}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Message</label>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-text-muted">Message</label>
                 <textarea 
                   required
                   rows={4}
-                  className="w-full border-b border-slate-200 py-3 focus:border-primary outline-none transition-colors text-sm font-light resize-none"
+                  className="w-full border-b border-background-tan bg-transparent py-3 focus:border-primary outline-none transition-colors text-sm font-light resize-none text-text-dark"
                   placeholder="Tell us more..."
                   value={formData.message}
                   onChange={e => setFormData({...formData, message: e.target.value})}
@@ -182,7 +182,7 @@ const ContactPage: React.FC = () => {
               </div>
               <button 
                 disabled={isSubmitting}
-                className="w-full bg-slate-900 text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-primary transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                className="w-full bg-primary text-white py-4 rounded-xl font-bold uppercase tracking-widest hover:bg-primary-dark transition-all flex items-center justify-center gap-3 disabled:opacity-50"
               >
                 {isSubmitting ? <Loader2 className="animate-spin" size={18} /> : (
                   <>
