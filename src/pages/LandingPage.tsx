@@ -123,7 +123,7 @@ const LandingPage: React.FC = () => {
             <h2 className="text-4xl md:text-5xl font-medium">Collections of Choice</h2>
           </div>
           
-          <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-12 overflow-x-auto md:overflow-x-visible pb-8 md:pb-0 scrollbar-hide snap-x px-4 md:px-0">
+          <div className="flex flex-nowrap md:grid md:grid-cols-3 gap-6 md:gap-12 overflow-x-auto md:overflow-x-visible pb-12 md:pb-0 scrollbar-hide snap-x px-4 md:px-0">
             {CATEGORIES.map((cat, idx) => (
               <motion.div 
                 key={cat.id}
@@ -131,7 +131,7 @@ const LandingPage: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.2, duration: 0.8 }}
-                className="min-w-[140px] md:min-w-0 flex-shrink-0 snap-center"
+                className="w-[85%] sm:w-[45%] md:w-auto flex-shrink-0 snap-center"
               >
                 <Link to={`/products?category=${cat.slug}`} className="group block text-center">
                   <div className="relative aspect-[4/3] mb-4 overflow-hidden bg-background-tan rounded-2xl transition-all duration-500 group-hover:shadow-xl">
