@@ -35,14 +35,14 @@ const LandingPage: React.FC = () => {
             <p className="text-white text-[11px] font-bold uppercase tracking-[0.4em] mb-4 animate-in slide-in-from-bottom duration-1000">
               The Bespoke Collection
             </p>
-            <h1 className="text-5xl md:text-[6rem] font-medium leading-[0.85] text-white mb-6">
+            <h1 className="text-4xl md:text-[6rem] font-medium leading-[0.9] md:leading-[0.85] text-white mb-6">
               The Art of<br/>
               <span className="italic font-light">Gifting</span>
             </h1>
-            <p className="text-white/80 text-base md:text-lg font-light mb-8 max-w-lg leading-relaxed">
+            <p className="text-white/80 text-sm md:text-lg font-light mb-8 max-w-lg leading-relaxed">
               Curating unforgettable moments with our hand-selected collection of personalised treasures and essentials.
             </p>
-            <div className="flex flex-row gap-4 md:gap-6">
+            <div className="flex flex-row gap-3 md:gap-6">
               <Link to="/products" className="premium-btn bg-white text-text-dark border border-white hover:bg-transparent hover:text-white transition-all duration-500">
                 Explore Shop
               </Link>
@@ -103,12 +103,14 @@ const LandingPage: React.FC = () => {
               </Link>
             </motion.div>
           </div>
-          <div className="w-full md:w-1/2 h-full order-1 md:order-2">
-            <img 
-              src="/images/anniversary.png" 
-              className="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-1000"
-              alt="Anniversary Gift"
-            />
+          <div className="w-full md:w-1/2 h-full order-1 md:order-2 p-4 md:p-12">
+            <div className="w-full h-full rounded-t-full overflow-hidden border-8 border-background-cream shadow-2xl">
+              <img 
+                src="/images/anniversary.png" 
+                className="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-1000 scale-105 hover:scale-100"
+                alt="Anniversary Gift"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -121,7 +123,7 @@ const LandingPage: React.FC = () => {
             <h2 className="text-4xl md:text-5xl font-medium">Collections of Choice</h2>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+          <div className="flex md:grid md:grid-cols-3 gap-6 md:gap-12 overflow-x-auto md:overflow-x-visible pb-8 md:pb-0 scrollbar-hide snap-x px-4 md:px-0">
             {CATEGORIES.map((cat, idx) => (
               <motion.div 
                 key={cat.id}
@@ -129,21 +131,18 @@ const LandingPage: React.FC = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.2, duration: 0.8 }}
+                className="min-w-[140px] md:min-w-0 flex-shrink-0 snap-center"
               >
-                <Link to={`/products?category=${cat.slug}`} className="group relative block aspect-[3/4] overflow-hidden bg-background-tan">
-                  <img 
-                    src={cat.image || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=2115&auto=format&fit=crop"} 
-                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110 brightness-[0.85] group-hover:brightness-100"
-                    alt={cat.name}
-                  />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors duration-500"></div>
-                  <div className="absolute inset-x-8 bottom-8 text-white">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.3em] mb-2">{cat.children?.length} Subsets</p>
-                    <h3 className="text-3xl font-medium mb-4">{cat.name}</h3>
-                    <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500">
-                      Explore Shop <ChevronRight size={14} />
-                    </div>
+                <Link to={`/products?category=${cat.slug}`} className="group block text-center">
+                  <div className="relative aspect-[4/3] mb-4 overflow-hidden bg-background-tan rounded-2xl transition-all duration-500 group-hover:shadow-xl">
+                    <img 
+                      src={cat.image || "https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=2115&auto=format&fit=crop"} 
+                      className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+                      alt={cat.name}
+                    />
                   </div>
+                  <h3 className="text-[13px] md:text-base font-bold text-text-dark group-hover:text-primary transition-colors uppercase tracking-wider">{cat.name}</h3>
+                  <p className="text-[9px] uppercase tracking-widest text-text-muted mt-1">{cat.children?.length} Collections</p>
                 </Link>
               </motion.div>
             ))}
@@ -164,14 +163,13 @@ const LandingPage: React.FC = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1.2 }}
-                className="relative aspect-square md:aspect-[4/5] bg-background-cream border border-primary/10 group overflow-hidden"
+                className="relative aspect-square md:aspect-[4/5] bg-background-cream rounded-[120px] shadow-2xl group overflow-hidden border-[12px] border-background-tan/50"
               >
                 <img 
                   src="/images/iconic.png" 
-                  className="w-full h-full object-cover opacity-80 group-hover:scale-110 group-hover:opacity-100 transition-all duration-1000"
+                  className="w-full h-full object-cover opacity-90 group-hover:scale-110 group-hover:opacity-100 transition-all duration-1000"
                   alt="Iconic Piece"
                 />
-                <div className="absolute inset-0 border-[30px] border-background-tan/50 pointer-events-none"></div>
               </motion.div>
             </div>
             

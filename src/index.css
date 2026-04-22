@@ -25,7 +25,7 @@
 
 @layer components {
   .premium-btn {
-    @apply px-6 md:px-10 py-3 md:py-4 text-[10px] md:text-[11px] uppercase tracking-[0.2em] font-bold transition-all duration-500 ease-out;
+    @apply px-4 md:px-10 py-3 md:py-4 text-[9px] md:text-[11px] uppercase tracking-[0.15em] md:tracking-[0.2em] font-bold transition-all duration-500 ease-out;
   }
   .premium-btn-primary {
     @apply bg-primary text-white hover:bg-primary-dark;
