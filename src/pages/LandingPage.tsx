@@ -42,7 +42,7 @@ const LandingPage: React.FC = () => {
             <p className="text-white/80 text-base md:text-lg font-light mb-8 max-w-lg leading-relaxed">
               Curating unforgettable moments with our hand-selected collection of personalised treasures and essentials.
             </p>
-            <div className="flex gap-6">
+            <div className="flex flex-row gap-4 md:gap-6">
               <Link to="/products" className="premium-btn bg-white text-text-dark border border-white hover:bg-transparent hover:text-white transition-all duration-500">
                 Explore Shop
               </Link>
@@ -74,7 +74,7 @@ const LandingPage: React.FC = () => {
             </Link>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-10 md:gap-y-16">
             {bestSellers.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -212,7 +212,7 @@ const LandingPage: React.FC = () => {
              <div className="h-0.5 w-16 bg-primary mx-auto"></div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 md:gap-x-8 gap-y-10">
             {newArrivals.slice(0, 8).map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
