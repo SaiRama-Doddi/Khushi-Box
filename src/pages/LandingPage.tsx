@@ -163,7 +163,7 @@ const LandingPage: React.FC = () => {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ duration: 1.2 }}
-                className="relative aspect-square md:aspect-[4/5] bg-background-cream rounded-[120px] shadow-2xl group overflow-hidden border-[12px] border-background-tan/50"
+                className="relative aspect-square md:aspect-[4/5] bg-background-cream shadow-2xl group overflow-hidden"
               >
                 <img 
                   src="/images/iconic.png" 

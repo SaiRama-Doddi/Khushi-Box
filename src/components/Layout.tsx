@@ -82,7 +82,7 @@ export const Header: React.FC = () => {
         </p>
       </div>
 
-      <div className="content-container py-3 md:py-4">
+      <div className="content-container py-1 md:py-2">
         <div className="flex items-center justify-between">
           
           {/* Left: Logo */}
@@ -90,12 +90,12 @@ export const Header: React.FC = () => {
             <Link to="/" className="flex items-center group">
               <img
                 src="https://res.cloudinary.com/dq7hun84m/image/upload/v1773765618/logo-main_jwi3jb.png"
-                alt="Khushi"
-                className="h-14 md:h-20 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                alt="KhushiBox"
+                className="h-10 md:h-14 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
                 referrerPolicy="no-referrer"
               />
-              <span className="hidden sm:block ml-4 font-display italic text-3xl md:text-4xl font-medium tracking-tight text-primary border-l border-background-tan pl-4">
-                Khushi
+              <span className="hidden sm:block ml-4 font-display italic text-2xl md:text-3xl font-medium tracking-tight text-primary border-l border-background-tan pl-4">
+                KhushiBox
               </span>
             </Link>
           </div>
@@ -215,8 +215,8 @@ export const Footer: React.FC = () => {
           <div className="md:col-span-1">
              <img
                 src="https://res.cloudinary.com/dq7hun84m/image/upload/v1773765618/logo-main_jwi3jb.png"
-                alt="Khushi"
-                className="h-20 w-auto object-contain mb-8"
+                alt="KhushiBox"
+                className="h-14 w-auto object-contain mb-8"
               />
               <p className="text-[14px] font-light leading-relaxed text-black mb-8 max-w-xs">
                 Crafting moments of pure joy with our bespoke collection of personalised gifts and premium essentials.
@@ -276,7 +276,7 @@ export const Footer: React.FC = () => {
 
         <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[11px] font-bold uppercase tracking-widest text-black">
-            © {new Date().getFullYear()} Khushi. All rights reserved.
+            © {new Date().getFullYear()} KhushiBox. All rights reserved.
           </p>
           <p className="text-[11px] font-bold uppercase tracking-widest text-black">
             Designed with <span className="text-secondary mx-1">✧</span> in mind
