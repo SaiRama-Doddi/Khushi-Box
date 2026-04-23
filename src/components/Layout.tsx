@@ -77,7 +77,7 @@ export const Header: React.FC = () => {
     <header className="sticky top-0 z-50 w-full bg-background-cream/80 backdrop-blur-md border-b border-background-tan transition-all duration-300">
       {/* Elegant Anniversary/Announcement Bar */}
       <div className="bg-primary text-background-cream py-2 px-4 text-center">
-        <p className="text-[9px] md:text-[10px] font-bold tracking-[0.3em] uppercase">
+        <p className="text-[7.5px] md:text-[10px] font-bold tracking-[0.1em] md:tracking-[0.3em] uppercase whitespace-nowrap">
           Complimentary shipping on all orders over ₹1999
         </p>
       </div>
@@ -91,10 +91,10 @@ export const Header: React.FC = () => {
               <img
                 src="https://res.cloudinary.com/dq7hun84m/image/upload/v1773765618/logo-main_jwi3jb.png"
                 alt="KhushiBox"
-                className="h-10 md:h-14 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                className="h-12 md:h-14 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
                 referrerPolicy="no-referrer"
               />
-              <span className="hidden sm:block ml-4 font-display italic text-2xl md:text-3xl font-medium tracking-tight text-primary border-l border-background-tan pl-4">
+              <span className="ml-2 font-display italic text-xl md:text-3xl font-medium tracking-tight text-primary">
                 KhushiBox
               </span>
             </Link>
@@ -213,11 +213,16 @@ export const Footer: React.FC = () => {
           
           {/* Brand Column */}
           <div className="md:col-span-1">
-             <img
-                src="https://res.cloudinary.com/dq7hun84m/image/upload/v1773765618/logo-main_jwi3jb.png"
-                alt="KhushiBox"
-                className="h-14 w-auto object-contain mb-8"
-              />
+             <Link to="/" className="flex items-center mb-8 group">
+               <img
+                  src="https://res.cloudinary.com/dq7hun84m/image/upload/v1773765618/logo-main_jwi3jb.png"
+                  alt="KhushiBox"
+                  className="h-16 md:h-20 w-auto object-contain transition-transform duration-500 group-hover:scale-105"
+                />
+                <span className="ml-2 font-display italic text-2xl md:text-3xl font-medium tracking-tight text-primary">
+                  KhushiBox
+                </span>
+             </Link>
               <p className="text-[14px] font-light leading-relaxed text-black mb-8 max-w-xs">
                 Crafting moments of pure joy with our bespoke collection of personalised gifts and premium essentials.
               </p>

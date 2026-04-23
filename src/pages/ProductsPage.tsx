@@ -37,7 +37,7 @@ const ProductsPage: React.FC = () => {
         const prodSnap = await getDocs(query(collection(db, 'products'), orderBy('createdAt', 'desc')));
         const catSnap = await getDocs(query(collection(db, 'categories'), orderBy('name', 'asc')));
         
-        setProducts(prodSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+        setProducts(prodSnap.docs.map(d => ({ ...d.data(), id: d.id })));
         setCategories(catSnap.docs.map(d => ({ id: d.id, ...d.data() })));
       } catch (err) {
         console.error("Error fetching products:", err);

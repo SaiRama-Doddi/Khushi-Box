@@ -1,4 +1,8 @@
-import { Product, Review, Category } from "./types";
+import { Product, Category } from "./types";
+
+export const BUSINESS_PHONE = "918309062323";
+export const WEARABLE_SIZES = ['S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+export const REVIEWS = [];
 
 export const personalisedGiftsCategory: Category = {
   id: "5",
@@ -16,8 +20,7 @@ export const personalisedGiftsCategory: Category = {
     { id: "5-9", name: "Sash Roll", slug: "sash-roll" },
     { id: "5-10", name: "Mouse Pad", slug: "mouse-pad" },
   ],
-  image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?q=80&w=2040&auto=format&fit=crop"
-}
+};
 
 export const wearablesCategory: Category = {
   id: "6",
@@ -32,8 +35,7 @@ export const wearablesCategory: Category = {
     { id: "6-6", name: "Track Suits", slug: "track-suits" },
     { id: "6-7", name: "Caps", slug: "caps" },
   ],
-  image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=2080&auto=format&fit=crop"
-}
+};
 
 export const magnetsCategory: Category = {
   id: "7",
@@ -43,14 +45,13 @@ export const magnetsCategory: Category = {
     { id: "7-1", name: "Personalized", slug: "personalized-magnets" },
     { id: "7-2", name: "Funky", slug: "funky-magnets" },
   ],
-  image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959161/ka_hisaab_lunga_1_zq3xsw.jpg"
-}
+};
 
 export const CATEGORIES: Category[] = [
   personalisedGiftsCategory,
   wearablesCategory,
   magnetsCategory,
-]
+];
 
 export const PRODUCTS: Product[] = [
   {
@@ -104,8 +105,9 @@ export const PRODUCTS: Product[] = [
     images: [
       "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959175/Always_late_but_worth_the_wait_1_ljeoi9.jpg",
       "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959096/Always_late_but_worth_the_wait_2_nruqki.jpg",
+      "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959173/Hotter_than_the_summer__1_lon4r6.jpg",
     ],
-    description: "Fridge Magnet Always Late But Worth The Wait good Finish Pack of 1.",
+    description: "Fridge Magnet  Always Late But Worth The Wait good Finish Pack of 1.",
     details: {
       material: "Magnetic",
       size: "Medium",
@@ -616,8 +618,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "129",
     name: "Kal Se pakka Padhunga",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 159,
     rating: 4.8,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959110/Kal_se_pakka_padhunga_1_e2ag46.jpg",
@@ -637,14 +639,12 @@ export const PRODUCTS: Product[] = [
   {
     id: "130",
     name: "Labubu",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 249,
     rating: 4.9,
-    image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959174/Be_afraid_and_do_it_anyway_1_if8kri.jpg", // Fallback for missing Labubu image
-    images: [
-      "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959174/Be_afraid_and_do_it_anyway_1_if8kri.jpg",
-    ],
+    image: "",
+    images: [""],
     description: "Labubu Fridge Magnet Pack Of 1.",
     details: {
       material: "Magnetic",
@@ -656,8 +656,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "131",
     name: "Manali",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 159,
     rating: 4,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959143/Manali_wroptp.jpg",
@@ -675,8 +675,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "132",
     name: "Meery Christmas Round",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 149,
     rating: 4.9,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959126/Merry_Christmas_round_1_qh9qvj.jpg",
@@ -694,8 +694,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "133",
     name: "Meery Christmas V1",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 149,
     rating: 4.9,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959127/Merry_Christmas_v1_1_w9kvop.jpg",
@@ -714,8 +714,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "134",
     name: "Merry Christmas with Reindeer",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 149,
     rating: 4.9,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959079/Merry_Christmas_with_Reindeer_1_p5bvqj.jpg",
@@ -734,14 +734,12 @@ export const PRODUCTS: Product[] = [
   {
     id: "135",
     name: "New year same shit",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 149,
     rating: 4.9,
-    image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959152/Paka_mat_1_juoe31.jpg", // Fallback for missing New Year image
-    images: [
-      "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959152/Paka_mat_1_juoe31.jpg",
-    ],
+    image: "",
+    images: [""],
     description: "Sarcastic New Year Fridge Magnet.",
     details: {
       material: "Magnetic",
@@ -753,8 +751,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "136",
     name: "Only a Titan can finish this fridge",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 129,
     rating: 4,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959141/Only_a_titan_can_finish_this_fridge_1_i3n1ly.jpg",
@@ -772,8 +770,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "137",
     name: "Paka mat",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 199,
     rating: 4.9,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959152/Paka_mat_1_juoe31.jpg",
@@ -792,8 +790,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "138",
     name: "Doremon",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 199,
     rating: 3.9,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959080/Doremon_1_quhhwc.jpg",
@@ -811,8 +809,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "139",
     name: "Ronaldo V1",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 259,
     rating: 4.9,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959167/Ronaldo_v1_1_mwoawv.jpg",
@@ -830,8 +828,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "140",
     name: "Ronaldo V2",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 259,
     rating: 4.9,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959104/Ronaldo_v2_1_ey6swx.jpg",
@@ -849,8 +847,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "141",
     name: "Sab Dhaaru Ki galti hai",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 159,
     rating: 4.2,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959151/Sab_dhaaru_ki_galti_hai_1_jjmzdg.jpg",
@@ -868,8 +866,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "142",
     name: "Sab moh maya hai",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 179,
     rating: 4.1,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959149/Sab_moh_maya_hai_1_w5ejvt.jpg",
@@ -888,8 +886,8 @@ export const PRODUCTS: Product[] = [
   {
     id: "143",
     name: "Sahi Khel gaya Bancho",
-    category: "magnets",   // main category slug
-    childCategory: "funky-magnets",             // child slug
+    category: "magnets",
+    childCategory: "funky-magnets",
     price: 179,
     rating: 4.1,
     image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959103/Sahi_khel_gaya_bancho_1_s09f1z.jpg",
@@ -897,37 +895,12 @@ export const PRODUCTS: Product[] = [
       "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959103/Sahi_khel_gaya_bancho_1_s09f1z.jpg",
       "https://res.cloudinary.com/dq7hun84m/image/upload/v1768959103/Sahi_khel_gaya_bancho_2_z72nva.jpg",
     ],
-    description: "",
+    description: "Funny Hindi Quote Fridge Magnet - Sahi Khel Gaya Bancho.",
     details: {
       material: "Magnetic",
       size: "Medium",
       aboutProduct:
-        "",
+        "A humorous addition to your collection, perfect for personal use or gifting.",
     },
   },
-]
-
-export const REVIEWS: Review[] = [
-  {
-    id: "r1",
-    author: "Amit Kumar",
-    initials: "AK",
-    date: "2 days ago",
-    rating: 5,
-    content: "Hilarious and high quality! The magnet is very strong and doesn't slide down the fridge. Everyone who sees it has a good laugh. Great gift for that one friend who's a bit stingy.",
-    isVerified: true
-  },
-  {
-    id: "r2",
-    author: "Priya Singh",
-    initials: "PS",
-    date: "1 week ago",
-    rating: 5,
-    content: "Love the typography. It looks exactly like the photo. The shipping was fast and the packaging was very secure.",
-    isVerified: true
-  }
 ];
-
-export const WEARABLE_SIZES = ["S", "M", "L", "XL", "XXL"];
-
-export const BUSINESS_PHONE = "917702522332";

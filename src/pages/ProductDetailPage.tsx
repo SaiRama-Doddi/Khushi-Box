@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { doc, getDoc } from 'firebase/firestore';
-import { REVIEWS } from '../constants';
+import { REVIEWS, WEARABLE_SIZES } from '../constants';
 import { Star, Heart, ShoppingBag, Truck, ShieldCheck, CheckCircle2, ChevronRight, Loader2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useCart } from '../context/CartContext';
@@ -20,14 +20,23 @@ const ProductDetailPage: React.FC = () => {
   const [activeImage, setActiveImage] = useState('');
   const [selectedSize, setSelectedSize] = useState<string>('');
 
-  const isWishlisted = product ? isInWishlist(product.id) : false;
+  // Process product to include sizes if it's a wearable
+  const effectiveProduct = React.useMemo(() => {
+    if (!product) return null;
+    if (product.category === 'wearables' && (!product.sizes || product.sizes.length === 0)) {
+      return { ...product, sizes: WEARABLE_SIZES };
+    }
+    return product;
+  }, [product]);
+
+  const isWishlisted = effectiveProduct ? isInWishlist(effectiveProduct.id) : false;
 
   const handleWishlistToggle = () => {
-    if (!product) return;
+    if (!effectiveProduct) return;
     if (isWishlisted) {
-      removeFromWishlist(product.id);
+      removeFromWishlist(effectiveProduct.id);
     } else {
-      addToWishlist(product);
+      addToWishlist(effectiveProduct);
     }
   };
 
@@ -36,15 +45,32 @@ const ProductDetailPage: React.FC = () => {
       if (!id) return;
       setLoading(true);
       try {
+        // 1. Try Firestore
         const docRef = doc(db, 'products', id);
         const docSnap = await getDoc(docRef);
+        
         if (docSnap.exists()) {
           const data = docSnap.data();
           setProduct({ id: docSnap.id, ...data });
           setActiveImage(data.image);
+        } else {
+          // 2. Try Static Products fallback
+          const { PRODUCTS } = await import('../constants');
+          const staticProd = PRODUCTS.find(p => p.id === id);
+          if (staticProd) {
+            setProduct(staticProd);
+            setActiveImage(staticProd.image);
+          }
         }
       } catch (err) {
         console.error("Error fetching product:", err);
+        // Fallback for offline/error
+        const { PRODUCTS } = await import('../constants');
+        const staticProd = PRODUCTS.find(p => p.id === id);
+        if (staticProd) {
+          setProduct(staticProd);
+          setActiveImage(staticProd.image);
+        }
       } finally {
         setLoading(false);
       }
@@ -76,9 +102,9 @@ const ProductDetailPage: React.FC = () => {
         <nav className="mb-12 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-text-muted">
           <Link to="/" className="hover:text-text-dark transition-colors">Home</Link>
           <ChevronRight size={12} />
-          <Link to="/products" className="hover:text-text-dark transition-colors">{product.category || 'Shop'}</Link>
+          <Link to="/products" className="hover:text-text-dark transition-colors">{effectiveProduct.category || 'Shop'}</Link>
           <ChevronRight size={12} />
-          <span className="text-text-dark truncate max-w-[200px]">{product.name}</span>
+          <span className="text-text-dark truncate max-w-[200px]">{effectiveProduct.name}</span>
         </nav>
 
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-20">
@@ -91,7 +117,7 @@ const ProductDetailPage: React.FC = () => {
             >
               <img 
                 src={activeImage} 
-                alt={product.name} 
+                alt={effectiveProduct.name} 
                 className="h-full w-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
                 referrerPolicy="no-referrer"
               />
@@ -105,12 +131,12 @@ const ProductDetailPage: React.FC = () => {
             
             <div className="grid grid-cols-5 gap-4">
               <button 
-                onClick={() => setActiveImage(product.image)}
-                className={`aspect-[4/5] overflow-hidden transition-all ${activeImage === product.image ? 'border border-primary' : 'border border-transparent opacity-60 hover:opacity-100'}`}
+                onClick={() => setActiveImage(effectiveProduct.image)}
+                className={`aspect-[4/5] overflow-hidden transition-all ${activeImage === effectiveProduct.image ? 'border border-primary' : 'border border-transparent opacity-60 hover:opacity-100'}`}
               >
-                <img src={product.image} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
+                <img src={effectiveProduct.image} className="h-full w-full object-cover" referrerPolicy="no-referrer" />
               </button>
-              {product.images?.slice(0, 4).map((img: string, i: number) => (
+              {effectiveProduct.images?.slice(0, 4).map((img: string, i: number) => (
                 <button 
                   key={i}
                   onClick={() => setActiveImage(img)}
@@ -126,49 +152,49 @@ const ProductDetailPage: React.FC = () => {
           <div className="flex flex-col">
             <div className="border-b border-background-tan pb-8 mb-8">
               <div className="flex items-center gap-3 mb-6">
-                <span className={`inline-flex items-center border px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${product.inStock !== false ? 'border-background-tan text-text-muted' : 'border-rose-200 text-rose-500'}`}>
-                  {product.inStock !== false ? 'Available' : 'Out of Stock'}
+                <span className={`inline-flex items-center border px-3 py-1 text-[9px] font-bold uppercase tracking-widest ${effectiveProduct.inStock !== false ? 'border-background-tan text-text-muted' : 'border-rose-200 text-rose-500'}`}>
+                  {effectiveProduct.inStock !== false ? 'Available' : 'Out of Stock'}
                 </span>
-                {product.subcategory || product.childCategory ? (
+                {effectiveProduct.subcategory || effectiveProduct.childCategory ? (
                   <span className="inline-flex items-center border border-background-tan px-3 py-1 text-[9px] font-bold text-text-muted uppercase tracking-widest">
-                    {product.subcategory || product.childCategory}
+                    {effectiveProduct.subcategory || effectiveProduct.childCategory}
                   </span>
                 ) : null}
               </div>
 
               <h1 className="text-3xl md:text-5xl font-display text-text-dark mb-6 leading-tight tracking-tight">
-                {product.name}
+                {effectiveProduct.name}
               </h1>
               
               <div className="flex items-center gap-6 mb-8">
                 <div className="flex items-center gap-1 text-primary">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} className={i < Math.floor(product.rating || 5) ? "fill-current" : ""} />
+                    <Star key={i} size={14} className={i < Math.floor(effectiveProduct.rating || 5) ? "fill-current" : ""} />
                   ))}
-                  <span className="ml-2 text-[11px] font-medium text-text-muted">{product.rating || '5.0'} / 5.0</span>
+                  <span className="ml-2 text-[11px] font-medium text-text-muted">{effectiveProduct.rating || '5.0'} / 5.0</span>
                 </div>
               </div>
               
               <div className="flex items-baseline gap-4">
-                <span className="text-2xl font-medium text-text-dark">₹{product.price || product.offerPrice}</span>
-                {(product.originalPrice || product.actualPrice) && (product.originalPrice || product.actualPrice) > (product.price || product.offerPrice) && (
-                  <span className="text-sm text-text-muted/50 line-through font-light">₹{product.originalPrice || product.actualPrice}</span>
+                <span className="text-2xl font-medium text-text-dark">₹{effectiveProduct.price || effectiveProduct.offerPrice}</span>
+                {(effectiveProduct.originalPrice || effectiveProduct.actualPrice) && (effectiveProduct.originalPrice || effectiveProduct.actualPrice) > (effectiveProduct.price || effectiveProduct.offerPrice) && (
+                  <span className="text-sm text-text-muted/50 line-through font-light">₹{effectiveProduct.originalPrice || effectiveProduct.actualPrice}</span>
                 )}
               </div>
             </div>
 
             <p className="text-[15px] leading-relaxed text-text-muted font-light mb-12">
-              {product.description}
+              {effectiveProduct.description}
             </p>
 
-            {product.sizes && product.sizes.length > 0 && (
+            {effectiveProduct.sizes && effectiveProduct.sizes.length > 0 && (
               <div className="mb-10">
                 <div className="flex justify-between items-end mb-4">
                   <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-text-dark">Select Variation</h3>
                   <button className="text-[10px] font-bold uppercase tracking-widest text-text-muted hover:text-text-dark border-b border-transparent hover:border-text-dark pb-0.5 transition-colors">Size Guide</button>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  {product.sizes.map((size: string) => (
+                  {effectiveProduct.sizes.map((size: string) => (
                     <button 
                       key={size} 
                       onClick={() => setSelectedSize(size)}
@@ -209,12 +235,12 @@ const ProductDetailPage: React.FC = () => {
               
               <button 
                 onClick={() => {
-                  if (product.sizes && product.sizes.length > 0 && !selectedSize) {
+                  if (effectiveProduct.sizes && effectiveProduct.sizes.length > 0 && !selectedSize) {
                     showToast('Please select a variation', 'error');
                     return;
                   }
-                  addToCart(product, quantity, selectedSize);
-                  showToast(`${product.name} added to bag!`);
+                  addToCart(effectiveProduct, quantity, selectedSize);
+                  showToast(`${effectiveProduct.name} added to bag!`);
                 }}
                 className="flex-1 h-14 bg-primary text-white px-8 text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-primary-dark transition-colors flex items-center justify-center gap-3"
               >
@@ -225,11 +251,11 @@ const ProductDetailPage: React.FC = () => {
 
             {/* Accordions for Features and Details */}
             <div className="border-t border-background-tan divide-y divide-background-tan">
-              {product.keyFeatures && product.keyFeatures.length > 0 && (
+              {effectiveProduct.keyFeatures && effectiveProduct.keyFeatures.length > 0 && (
                 <div className="py-6">
                   <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-text-dark mb-4">The Details</h3>
                   <ul className="space-y-3">
-                    {product.keyFeatures.map((feature: string, i: number) => (
+                    {effectiveProduct.keyFeatures.map((feature: string, i: number) => (
                       <li key={i} className="flex items-start gap-3 text-[13px] text-text-muted font-light">
                         <span className="text-primary mt-1 text-[10px]">✦</span>
                         <span>{feature}</span>
@@ -239,13 +265,13 @@ const ProductDetailPage: React.FC = () => {
                 </div>
               )}
 
-              {product.details && (
+              {effectiveProduct.details && (
                 <div className="py-6">
                   <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-text-dark mb-4">Specifications</h3>
                   <div className="text-[13px] text-text-muted font-light whitespace-pre-line">
-                    {typeof product.details === 'string' 
-                      ? product.details 
-                      : Object.entries(product.details).map(([key, value]) => `${key}: ${value}`).join('\n')
+                    {typeof effectiveProduct.details === 'string' 
+                      ? effectiveProduct.details 
+                      : Object.entries(effectiveProduct.details).map(([key, value]) => `${key}: ${value}`).join('\n')
                     }
                   </div>
                 </div>

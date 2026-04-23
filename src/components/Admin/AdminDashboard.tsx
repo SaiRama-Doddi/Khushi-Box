@@ -35,7 +35,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 
 const AdminDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'categories' | 'products' | 'orders'>('categories');
+  const [activeTab, setActiveTab] = useState<'overview' | 'categories' | 'products' | 'orders'>('overview');
   const [loading, setLoading] = useState(false);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
@@ -64,12 +64,25 @@ const AdminDashboard: React.FC = () => {
   const [prodInStock, setProdInStock] = useState(true);
   const [prodRating, setProdRating] = useState('5');
   const [prodReviews, setProdReviews] = useState('0');
-  const [orderFilter, setOrderFilter] = useState<'all' | 'today' | '24h' | '7d' | '30d'>('all');
+  
+  // New detail states
+  const [prodMaterial, setProdMaterial] = useState('');
+  const [prodWeight, setProdWeight] = useState('');
+  const [prodSizeDetail, setProdSizeDetail] = useState('');
+  const [prodAbout, setProdAbout] = useState('');
+
+  const [orderFilter, setOrderFilter] = useState<'all' | 'today' | '24h' | '7d' | '30d' | 'custom'>('all');
+  const [orderSearchDate, setOrderSearchDate] = useState('');
 
   const filteredOrders = orders.filter(order => {
-    if (orderFilter === 'all') return true;
     const orderDate = (order.createdAt as any)?.toDate();
     if (!orderDate) return false;
+    
+    if (orderFilter === 'custom' && orderSearchDate) {
+      return orderDate.toISOString().split('T')[0] === orderSearchDate;
+    }
+
+    if (orderFilter === 'all') return true;
     
     const now = new Date();
     if (orderFilter === 'today') {
@@ -95,6 +108,37 @@ const AdminDashboard: React.FC = () => {
   const [showSubcatForm, setShowSubcatForm] = useState<string | null>(null);
   const [newSubcatName, setNewSubcatName] = useState('');
   const [newSubcatSlug, setNewSubcatSlug] = useState('');
+
+  // Analytics Helpers
+  const getRevenueData = () => {
+    const last7Days = [...Array(7)].map((_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      return d.toISOString().split('T')[0];
+    }).reverse();
+
+    return last7Days.map(date => {
+      const total = orders
+        .filter(o => {
+          const oDate = (o.createdAt as any)?.toDate();
+          return oDate && oDate.toISOString().split('T')[0] === date;
+        })
+        .reduce((sum, o) => sum + (o.total || 0), 0);
+      return { date, total };
+    });
+  };
+
+  const getOrderStatusData = () => {
+    const statuses = ['Processing', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled'];
+    return statuses.map(status => {
+      const count = orders.filter(o => (o.status || 'Processing') === status).length;
+      return { status, count };
+    });
+  };
+
+  const revenueData = getRevenueData();
+  const statusData = getOrderStatusData();
+  const todayRevenue = revenueData[revenueData.length - 1]?.total || 0;
   const [confirmModal, setConfirmModal] = useState<{
     show: boolean;
     title: string;
@@ -200,6 +244,58 @@ const AdminDashboard: React.FC = () => {
     }
   }, [activeTab, isAdmin]);
 
+  const wipeAndSync = async () => {
+    setConfirmModal({
+      show: true,
+      title: 'Wipe & Resync Database',
+      message: 'This will DELETE ALL categories and products from Firebase and re-load them from local constants. Are you absolutely sure?',
+      onConfirm: async () => {
+        setConfirmModal(prev => ({ ...prev, show: false }));
+        setLoading(true);
+        try {
+          // 1. Wipe Collections
+          const catSnap = await getDocs(collection(db, 'categories'));
+          for (const d of catSnap.docs) await deleteDoc(doc(db, 'categories', d.id));
+          
+          const prodSnap = await getDocs(collection(db, 'products'));
+          for (const d of prodSnap.docs) await deleteDoc(doc(db, 'products', d.id));
+
+          // 2. Load from constants
+          const { CATEGORIES, PRODUCTS } = await import('../../constants');
+          
+          for (const cat of CATEGORIES) {
+            await addDoc(collection(db, 'categories'), { 
+              ...cat, 
+              createdAt: Timestamp.now(),
+              updatedAt: Timestamp.now() 
+            });
+          }
+
+          for (const prod of PRODUCTS) {
+            await addDoc(collection(db, 'products'), { 
+              ...prod, 
+              createdAt: Timestamp.now(),
+              updatedAt: Timestamp.now() 
+            });
+          }
+
+          setConfirmModal({
+            show: true,
+            title: 'Database Reset Complete',
+            message: 'All previous data removed and fresh catalog deployed.',
+            isAlert: true,
+            onConfirm: () => setConfirmModal(prev => ({ ...prev, show: false }))
+          });
+          fetchData();
+        } catch (err) {
+          handleFirestoreError(err, OperationType.UPDATE, 'wipe-sync');
+        } finally {
+          setLoading(false);
+        }
+      }
+    });
+  };
+
   const syncWithConstants = async () => {
     setLoading(true);
     try {
@@ -262,16 +358,16 @@ const AdminDashboard: React.FC = () => {
     try {
       if (activeTab === 'categories') {
         const snap = await getDocs(query(collection(db, 'categories'), orderBy('createdAt', 'desc')));
-        setCategories(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        setCategories(snap.docs.map(d => ({ ...d.data(), id: d.id })));
       } else if (activeTab === 'products') {
         const snap = await getDocs(query(collection(db, 'products'), orderBy('createdAt', 'desc')));
-        setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        setProducts(snap.docs.map(d => ({ ...d.data(), id: d.id })));
         // Also need categories for the dropdown
         const catSnap = await getDocs(collection(db, 'categories'));
-        setCategories(catSnap.docs.map(d => ({ id: d.id, ...d.data() })));
+        setCategories(catSnap.docs.map(d => ({ ...d.data(), id: d.id })));
       } else if (activeTab === 'orders') {
         const snap = await getDocs(query(collection(db, 'orders'), orderBy('createdAt', 'desc')));
-        setOrders(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        setOrders(snap.docs.map(d => ({ ...d.data(), id: d.id })));
       }
     } catch (err) {
       handleFirestoreError(err, OperationType.LIST, activeTab);
@@ -465,8 +561,8 @@ const AdminDashboard: React.FC = () => {
     try {
       await addDoc(collection(db, 'products'), {
         name: prodName,
-        originalPrice: parseFloat(prodOriginalPrice) || 0,
         price: parseFloat(prodPrice) || 0,
+        originalPrice: parseFloat(prodOriginalPrice) || 0,
         category: prodCat,
         childCategory: prodSubcategory,
         image: prodImage,
@@ -474,12 +570,17 @@ const AdminDashboard: React.FC = () => {
         description: prodDesc,
         sizes: prodSizes,
         rating: parseFloat(prodRating) || 5,
-        reviews: parseInt(prodReviews) || 0,
-        inStock: prodInStock,
-        details: prodDetails,
-        keyFeatures: prodKeyFeatures.split(',').map(s => s.trim()).filter(s => s),
-        createdAt: Timestamp.now()
+        details: {
+          material: prodMaterial,
+          weight: prodWeight,
+          size: prodSizeDetail,
+          aboutProduct: prodAbout
+        },
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now()
       });
+      
+      // Reset form
       setProdName('');
       setProdOriginalPrice('');
       setProdPrice('');
@@ -489,11 +590,11 @@ const AdminDashboard: React.FC = () => {
       setProdImages('');
       setProdDesc('');
       setProdSizes([]);
-      setProdDetails('');
-      setProdKeyFeatures('');
-      setProdInStock(true);
-      setProdRating('5');
-      setProdReviews('0');
+      setProdMaterial('');
+      setProdWeight('');
+      setProdSizeDetail('');
+      setProdAbout('');
+      
       setError(null);
       fetchData();
       setConfirmModal({
@@ -671,6 +772,7 @@ const AdminDashboard: React.FC = () => {
         <nav className="flex-1 p-6 space-y-2 overflow-y-auto custom-scrollbar">
           <p className="text-[10px] font-black text-black/60 uppercase tracking-[0.3em] mb-4 ml-2">Console</p>
           {[
+            { id: 'overview', label: 'Overview', icon: LayoutDashboard },
             { id: 'orders', label: 'Orders', icon: ShoppingBag },
             { id: 'products', label: 'Products', icon: Package },
             { id: 'categories', label: 'Categories', icon: Tags },
@@ -709,7 +811,7 @@ const AdminDashboard: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1 lg:ml-72 min-h-screen bg-white text-text-dark">
-        <header className="sticky top-0 z-30 bg-white border-b border-background-tan px-6 md:px-12 py-6 md:py-8 flex justify-between items-center">
+        <header className="sticky top-0 z-30 bg-white border-b border-background-tan px-6 md:px-10 py-6 md:py-7 flex justify-between items-center">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setShowMobileSidebar(true)}
@@ -736,19 +838,28 @@ const AdminDashboard: React.FC = () => {
           </div>
         </header>
 
-        <div className="p-4 md:p-8 lg:p-12 max-w-[1400px] mx-auto">
+        <div className="p-4 md:p-8 lg:p-10 max-w-[1200px] mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8 md:mb-12">
             <div>
-              <p className="text-[10px] font-black text-primary uppercase tracking-[0.4em] mb-2">Management Terminal</p>
-              <h1 className="text-3xl md:text-5xl font-black text-text-dark tracking-tighter capitalize">{activeTab}</h1>
+              <p className="text-[10px] font-bold text-primary uppercase tracking-[0.4em] mb-2">Management Terminal</p>
+              <h2 className="text-3xl md:text-5xl font-black text-text-dark tracking-tighter leading-none uppercase">
+                Khushi <span className="text-primary/40 italic">Box</span>
+              </h2>
             </div>
             <div className="flex flex-wrap items-center gap-3 md:gap-4">
+              <button 
+                onClick={wipeAndSync}
+                className="bg-rose-500/10 text-rose-500 px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all shadow-lg shadow-rose-500/5 flex items-center gap-2"
+              >
+                <Trash2 size={14} />
+                Wipe & Hard Reset
+              </button>
               <button 
                 onClick={syncWithConstants}
                 className="bg-primary/10 text-primary px-4 md:px-6 py-2.5 md:py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] border border-primary/20 hover:bg-primary hover:text-white transition-all shadow-lg shadow-primary/5 flex items-center gap-2"
               >
                 <CheckCircle2 size={14} />
-                Synchronize Global Matrix
+                Update & Patch
               </button>
               <div className="bg-secondary/10 text-secondary px-3 md:px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-secondary/20 shadow-sm animate-pulse whitespace-nowrap">
                 {loading ? 'Synchronizing...' : 'Network Stable'}
@@ -770,116 +881,255 @@ const AdminDashboard: React.FC = () => {
           </div>
         )}
 
-        <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait">
+          {activeTab === 'overview' && (
+            <motion.div key="ov" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-10">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                {[
+                  { label: "Today's Revenue", value: `₹${todayRevenue.toLocaleString()}`, sub: "Live Inflow", icon: ChevronUp, color: "text-emerald-500", bg: "bg-emerald-500/5" },
+                  { label: "Total Revenue", value: `₹${totalRevenue.toLocaleString()}`, sub: "INR Cumulative", icon: ShoppingBag, color: "text-primary", bg: "bg-primary/5" },
+                  { label: "Total Orders", value: orders.length, sub: "Life-time Manifests", icon: Package, color: "text-blue-500", bg: "bg-blue-500/5" },
+                  { label: "Avg. Ticket Size", value: `₹${Math.round(totalRevenue / (orders.length || 1)).toLocaleString()}`, sub: "Per Transaction", icon: Tags, color: "text-amber-500", bg: "bg-amber-500/5" },
+                ].map((s, i) => (
+                  <div key={i} className="bg-white p-6 rounded-[2rem] border border-black/5 shadow-sm hover:shadow-md transition-all">
+                    <p className="text-[9px] font-bold text-black/40 uppercase tracking-[0.3em] mb-4">{s.label}</p>
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <h4 className="text-2xl font-black text-black tracking-tight">{s.value}</h4>
+                        <p className="text-[10px] font-bold text-black/30 uppercase mt-1 tracking-widest">{s.sub}</p>
+                      </div>
+                      <div className={`size-10 ${s.bg} ${s.color} rounded-xl flex items-center justify-center`}>
+                        <s.icon size={18} />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Charts Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+                {/* Bar Chart - Revenue Trend */}
+                <div className="lg:col-span-2 bg-white p-6 md:p-8 rounded-[2.5rem] border border-black/5 shadow-sm">
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h3 className="text-sm font-black text-black uppercase tracking-widest">Revenue Analytics</h3>
+                      <p className="text-[10px] font-bold text-black/30 uppercase tracking-widest mt-1">Rolling 7-Day Performance</p>
+                    </div>
+                  </div>
+                  <div className="h-64 flex items-end justify-between gap-2 md:gap-4 px-2">
+                    {revenueData.map((d, i) => {
+                      const maxTotal = Math.max(...revenueData.map(r => r.total), 1);
+                      const height = (d.total / maxTotal) * 100;
+                      return (
+                        <div key={i} className="flex-1 flex flex-col items-center group relative h-full justify-end">
+                          <motion.div 
+                            initial={{ height: 0 }} 
+                            animate={{ height: `${height}%` }}
+                            className={`w-full max-w-[40px] rounded-t-lg transition-all duration-500 relative overflow-hidden ${i === revenueData.length - 1 ? 'bg-primary' : 'bg-primary/20 hover:bg-primary/40'}`}
+                          >
+                            {/* SVG Pattern for texture */}
+                            <svg className="absolute inset-0 w-full h-full opacity-10" viewBox="0 0 100 100" preserveAspectRatio="none">
+                              <line x1="0" y1="0" x2="100" y2="100" stroke="white" strokeWidth="2" />
+                            </svg>
+                          </motion.div>
+                          <p className="text-[8px] font-bold text-black/40 uppercase mt-3 tracking-tighter whitespace-nowrap overflow-hidden max-w-full">
+                            {new Date(d.date).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                          </p>
+                          {/* Tooltip */}
+                          <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white px-2 py-1 rounded text-[8px] font-black opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none">
+                            ₹{d.total.toLocaleString()}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Pie Chart - Status Mix */}
+                <div className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-black/5 shadow-sm flex flex-col">
+                  <h3 className="text-sm font-black text-black uppercase tracking-widest mb-2">Order Matrix</h3>
+                  <p className="text-[10px] font-bold text-black/30 uppercase tracking-widest mb-8">Status Distribution</p>
+                  
+                  <div className="relative size-48 mx-auto mb-8">
+                    <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+                      {statusData.map((d, i) => {
+                        const total = orders.length || 1;
+                        const prevTotal = statusData.slice(0, i).reduce((sum, curr) => sum + curr.count, 0);
+                        const start = (prevTotal / total) * 100;
+                        const length = (d.count / total) * 100;
+                        const colors = ['#800000', '#D4AF37', '#059669', '#3B82F6', '#F43F5E'];
+                        
+                        return (
+                          <motion.circle
+                            key={i}
+                            cx="50"
+                            cy="50"
+                            r="40"
+                            fill="transparent"
+                            stroke={colors[i]}
+                            strokeWidth="12"
+                            strokeDasharray={`${length} ${100 - length}`}
+                            strokeDashoffset={-start}
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="transition-all hover:stroke-[15] cursor-help"
+                          />
+                        );
+                      })}
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span className="text-2xl font-black text-black leading-none">{orders.length}</span>
+                      <span className="text-[8px] font-bold text-black/30 uppercase tracking-widest mt-1">Volume</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    {statusData.map((d, i) => (
+                      <div key={i} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="size-2 rounded-full" style={{ backgroundColor: ['#800000', '#D4AF37', '#059669', '#3B82F6', '#F43F5E'][i] }} />
+                          <span className="text-[9px] font-bold text-black/60 uppercase tracking-widest">{d.status}</span>
+                        </div>
+                        <span className="text-[9px] font-black text-black">{d.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
           {activeTab === 'categories' && (
             <motion.div key="cat" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 md:space-y-12">
-              <form onSubmit={addCategory} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-background-tan shadow-2xl grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                <div className="md:col-span-2 flex items-center justify-between">
-                  <h3 className="text-lg md:text-xl font-black text-text-dark tracking-tight">Establish New Category</h3>
-                  <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
-                    <Plus size={20} />
+              <form onSubmit={addCategory} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-black/5 shadow-sm grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                <div className="md:col-span-2 lg:col-span-3 flex items-center justify-between mb-2">
+                  <div>
+                    <h3 className="text-xl md:text-2xl font-black text-black tracking-tight">Expand the Catalog</h3>
+                    <p className="text-[10px] font-bold text-black/30 uppercase tracking-[0.3em] mt-1">Register new matrix entry</p>
+                  </div>
+                  <div className="size-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary border border-primary/20">
+                    <Plus size={24} />
                   </div>
                 </div>
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted ml-1">Category Designation</label>
-                  <input value={catName} onChange={e => setCatName(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-background-tan text-text-dark text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-text-muted outline-none border" placeholder="e.g. LUXURY APPAREL" />
+                  <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/40 ml-1">Designation</label>
+                  <input value={catName} onChange={e => setCatName(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium outline-none border" placeholder="e.g. LUXURY APPAREL" />
                 </div>
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted ml-1">URL Identifier (Slug)</label>
-                  <input value={catSlug} onChange={e => setCatSlug(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-background-tan text-text-dark text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-text-muted outline-none border" placeholder="e.g. luxury-apparel" />
+                  <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/40 ml-1">Matrix Slug</label>
+                  <input value={catSlug} onChange={e => setCatSlug(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium outline-none border" placeholder="e.g. luxury-apparel" />
                 </div>
-                <div className="space-y-3 md:col-span-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted ml-1">Sub-Matrices (Comma separated)</label>
-                  <input value={catSubcats} onChange={e => setCatSubcats(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-background-tan text-text-dark text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-text-muted outline-none border" placeholder="e.g. Mugs, Frames, Clocks" />
+                <div className="space-y-3">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/40 ml-1">Asset URL</label>
+                  <input value={catImage} onChange={e => setCatImage(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium outline-none border" placeholder="https://..." />
                 </div>
-                <div className="space-y-3 md:col-span-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-text-muted ml-1">Visual Asset URL</label>
-                  <input value={catImage} onChange={e => setCatImage(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-background-tan text-text-dark text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium placeholder:text-text-muted outline-none border" placeholder="https://source.unsplash.com/assets/..." />
+                <div className="space-y-3 md:col-span-2 lg:col-span-3">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.3em] text-black/40 ml-1">Initial Sub-Matrices (Comma separated)</label>
+                  <textarea value={catSubcats} onChange={e => setCatSubcats(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium h-24 outline-none border resize-none" placeholder="e.g. Mugs, Frames, Clocks" />
                 </div>
-                <button type="submit" className="md:col-span-2 bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-[0.98] flex items-center justify-center gap-3">
-                  <Plus size={20} /> Initialize Category
+                <button type="submit" className="md:col-span-2 lg:col-span-3 bg-primary text-white py-4 md:py-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-[0.98] flex items-center justify-center gap-3">
+                  Initialize Category Matrix
                 </button>
               </form>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 md:gap-8">
                 {categories.map(cat => (
-                  <div key={cat.id} className="bg-background-tan/30 rounded-[2rem] md:rounded-[2.5rem] overflow-hidden border border-background-tan group relative flex flex-col shadow-xl hover:border-primary/30 transition-all duration-500">
-                    <div className="h-40 md:h-48 bg-white relative overflow-hidden">
-                      <img src={cat.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80" referrerPolicy="no-referrer" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-100 to-transparent opacity-60"></div>
-                      <div className="absolute top-4 right-4 flex gap-2 lg:opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 lg:group-hover:translate-y-0">
+                  <div key={cat.id} className="bg-white rounded-[2.5rem] overflow-hidden border border-black/5 flex flex-col md:flex-row shadow-sm hover:shadow-xl transition-all duration-500 group min-h-[300px]">
+                    {/* Visual Side */}
+                    <div className="w-full md:w-2/5 relative overflow-hidden bg-slate-100">
+                      <img src={cat.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                      <div className="absolute bottom-6 left-6">
+                        <h4 className="text-xl font-black text-white tracking-tight">{cat.name}</h4>
+                        <p className="text-[9px] font-bold text-white/60 uppercase tracking-[0.2em] mt-1">{cat.slug}</p>
+                      </div>
+                      
+                      <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
                         <button 
                           onClick={() => setEditingItem({ type: 'category', ...cat })}
-                          className="p-2.5 md:p-3 bg-white/10 backdrop-blur-md rounded-xl text-white hover:bg-primary transition-colors border border-white/10"
+                          className="size-10 bg-white rounded-xl text-black hover:bg-primary hover:text-white transition-all flex items-center justify-center shadow-xl"
                         >
                           <Edit2 size={16} />
                         </button>
                         <button 
                           onClick={() => deleteItem('categories', cat.id)} 
-                          className="p-2.5 md:p-3 bg-white/10 backdrop-blur-md rounded-xl text-rose-400 hover:bg-rose-500 hover:text-white transition-colors border border-white/10"
+                          className="size-10 bg-white rounded-xl text-rose-500 hover:bg-rose-500 hover:text-white transition-all flex items-center justify-center shadow-xl"
                         >
                           <Trash2 size={16} />
                         </button>
                       </div>
                     </div>
-                    <div className="p-6 md:p-8 flex-1 flex flex-col">
-                      <div className="flex justify-between items-start mb-6">
-                        <div className="flex-1 overflow-hidden pr-2">
-                          <h4 className="text-lg md:text-xl font-black text-slate-900 tracking-tight truncate">{cat.name}</h4>
-                          <span className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-1 block truncate">{cat.slug}</span>
-                        </div>
-                        <div className="bg-primary/10 text-primary px-2 md:px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-primary/20 shrink-0">
-                          {cat.children?.length || 0} Layers
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <div className="flex justify-between items-center bg-white/50 p-2 rounded-xl border border-slate-800/30">
-                          <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-2">Sub-Matrices</h4>
-                          <button 
-                            onClick={() => setShowSubcatForm(showSubcatForm === cat.id ? null : cat.id)}
-                            className="size-8 bg-primary rounded-lg flex items-center justify-center text-white hover:bg-primary-dark transition-colors shadow-lg shadow-primary/10"
-                          >
-                            <Plus size={16} />
-                          </button>
-                        </div>
-                        
-                        {showSubcatForm === cat.id && (
-                          <div className="p-4 bg-white rounded-2xl space-y-3 border border-slate-800 shadow-inner">
-                            <textarea 
-                              value={newSubcatName} 
-                              onChange={e => setNewSubcatName(e.target.value)}
-                              placeholder="Matrices (comma separated)"
-                              className="w-full text-xs px-4 py-3 rounded-xl bg-white border-slate-300 text-slate-900 h-20 placeholder:text-slate-500 outline-none border"
-                            />
-                            <button 
-                              onClick={() => addSubcategory(cat.id, cat.children)}
-                              className="w-full bg-white text-[#020617] text-[10px] font-black py-3 rounded-xl uppercase tracking-[0.2em] hover:bg-primary hover:text-white transition-all"
-                            >
-                              Sync Matrices
-                            </button>
-                          </div>
-                        )}
 
+                    {/* Content Side */}
+                    <div className="flex-1 p-6 md:p-8 flex flex-col bg-white">
+                      <div className="flex justify-between items-center mb-6">
+                        <div>
+                          <p className="text-[9px] font-bold text-black/30 uppercase tracking-widest">Sub-Matrix Inventory</p>
+                          <p className="text-sm font-black text-black">{cat.children?.length || 0} ACTIVE LAYERS</p>
+                        </div>
+                        <button 
+                          onClick={() => setShowSubcatForm(showSubcatForm === cat.id ? null : cat.id)}
+                          className={`size-10 rounded-xl flex items-center justify-center transition-all ${showSubcatForm === cat.id ? 'bg-black text-white' : 'bg-primary/10 text-primary hover:bg-primary hover:text-white'}`}
+                        >
+                          <Plus size={18} />
+                        </button>
+                      </div>
+
+                      <div className="flex-1 overflow-y-auto max-h-[160px] custom-scrollbar mb-4">
                         <div className="flex flex-wrap gap-2">
                           {cat.children?.map((child: any) => (
-                            <div key={child.id} className="flex items-center gap-2 bg-white px-2.5 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl border border-slate-800/50 group/sub hover:border-primary/40 transition-all">
-                              <span className="text-[9px] md:text-[10px] font-black text-slate-400 group-hover/sub:text-slate-200 uppercase tracking-widest">{child.name}</span>
+                            <div key={child.id} className="group/item flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-xl border border-black/5 hover:border-primary/20 transition-all">
+                              <span className="text-[10px] font-bold text-black/60 group-hover/item:text-primary transition-colors">{child.name}</span>
                               <button 
                                 onClick={() => deleteSubcategory(cat.id, child.id, cat.children)}
-                                className="text-slate-600 hover:text-rose-500 lg:opacity-0 lg:group-hover/sub:opacity-100 transition-opacity"
+                                className="text-black/20 hover:text-rose-500 opacity-0 group-hover/item:opacity-100 transition-all"
                               >
                                 <X size={12} />
                               </button>
                             </div>
                           ))}
                           {(!cat.children || cat.children.length === 0) && (
-                            <div className="w-full py-4 border border-dashed border-slate-800 rounded-xl text-center">
-                              <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest italic">Matrix Empty</span>
+                            <div className="w-full py-8 border border-dashed border-black/10 rounded-2xl flex flex-col items-center justify-center gap-2 opacity-40">
+                              <ImageIcon size={20} />
+                              <span className="text-[9px] font-bold uppercase tracking-widest">No Sub-Matrices</span>
                             </div>
                           )}
                         </div>
                       </div>
+
+                      <AnimatePresence>
+                        {showSubcatForm === cat.id && (
+                          <motion.div 
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="pt-4 border-t border-black/5 flex flex-col gap-3">
+                              <textarea 
+                                value={newSubcatName} 
+                                onChange={e => setNewSubcatName(e.target.value)}
+                                placeholder="Enter matrices (comma separated)..."
+                                className="w-full text-xs px-4 py-3 rounded-xl bg-slate-50 border border-black/10 text-black h-20 outline-none focus:ring-2 focus:ring-primary/10"
+                              />
+                              <div className="flex gap-2">
+                                <button 
+                                  onClick={() => setShowSubcatForm(null)}
+                                  className="flex-1 bg-slate-100 text-black/60 text-[10px] font-bold py-3 rounded-xl uppercase tracking-widest hover:bg-slate-200 transition-all"
+                                >
+                                  Cancel
+                                </button>
+                                <button 
+                                  onClick={() => addSubcategory(cat.id, cat.children)}
+                                  className="flex-1 bg-primary text-white text-[10px] font-bold py-3 rounded-xl uppercase tracking-widest shadow-lg shadow-primary/10 hover:bg-primary-dark transition-all"
+                                >
+                                  Register
+                                </button>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   </div>
                 ))}
@@ -889,8 +1139,8 @@ const AdminDashboard: React.FC = () => {
 
           {activeTab === 'products' && (
             <motion.div key="prod" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
-              <form onSubmit={addProduct} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-black/5 shadow-lg grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-                <div className="md:col-span-3 flex items-center justify-between">
+              <form onSubmit={addProduct} className="bg-white p-6 md:p-10 rounded-3xl md:rounded-[2.5rem] border border-black/5 shadow-lg grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                <div className="md:col-span-2 flex items-center justify-between">
                   <h3 className="text-lg md:text-xl font-black text-black tracking-tight">Index New Product</h3>
                   <div className="size-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-primary/20">
                     <Plus size={20} />
@@ -902,7 +1152,7 @@ const AdminDashboard: React.FC = () => {
                   <input value={prodName} onChange={e => setProdName(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/20 transition-all font-medium outline-none border" placeholder="E.G. SIGNATURE COLLECTION" />
                 </div>
                 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 md:col-span-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 md:col-span-2">
                   <div className="space-y-3">
                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">MSRP (₹)</label>
                     <input type="number" step="1" value={prodOriginalPrice} onChange={e => setProdOriginalPrice(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/20 transition-all outline-none border" />
@@ -932,7 +1182,7 @@ const AdminDashboard: React.FC = () => {
                 </div>
 
                 {prodCat === 'wearables' && (
-                  <div className="md:col-span-3 space-y-4">
+                  <div className="md:col-span-2 space-y-4">
                     <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Variant Matrix (Sizes)</label>
                     <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
                       {WEARABLE_SIZES.map(size => (
@@ -956,48 +1206,38 @@ const AdminDashboard: React.FC = () => {
                   </div>
                 )}
 
-                <div className="space-y-3 md:col-span-3">
+                <div className="space-y-3 md:col-span-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Primary Asset URL</label>
                   <input value={prodImage} onChange={e => setProdImage(e.target.value)} required className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="HTTPS://..." />
                 </div>
 
-                <div className="space-y-3 md:col-span-3">
+                <div className="space-y-3 md:col-span-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Gallery Images (comma separated URLs)</label>
                   <input value={prodImages} onChange={e => setProdImages(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="https://... , https://..." />
                   <p className="text-[10px] text-black/40">Add 2-4 image links for the product gallery (optional, comma-separated).</p>
                 </div>
 
-                <div className="space-y-3 md:col-span-3">
+                <div className="space-y-3 md:col-span-2">
                   <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Description</label>
                   <textarea value={prodDesc} onChange={e => setProdDesc(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Add the product description" />
                 </div>
 
-                <div className="space-y-3 md:col-span-3">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Details / Specifications</label>
-                  <textarea value={prodDetails} onChange={e => setProdDetails(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Key details (e.g. size, material, usage)" />
+                <div className="space-y-3 md:col-span-2">
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Specifications (Details Object)</label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <input value={prodMaterial} onChange={e => setProdMaterial(e.target.value)} className="w-full px-5 py-3.5 rounded-xl bg-white border-black/10 text-black text-sm outline-none border" placeholder="Material (e.g. Magnetic)" />
+                    <input value={prodWeight} onChange={e => setProdWeight(e.target.value)} className="w-full px-5 py-3.5 rounded-xl bg-white border-black/10 text-black text-sm outline-none border" placeholder="Weight (e.g. 15 Grams)" />
+                    <input value={prodSizeDetail} onChange={e => setProdSizeDetail(e.target.value)} className="w-full px-5 py-3.5 rounded-xl bg-white border-black/10 text-black text-sm outline-none border" placeholder="Size (e.g. 3 inch)" />
+                    <input value={prodRating} onChange={e => setProdRating(e.target.value)} type="number" step="0.1" className="w-full px-5 py-3.5 rounded-xl bg-white border-black/10 text-black text-sm outline-none border" placeholder="Rating (0-5)" />
+                  </div>
                 </div>
 
                 <div className="space-y-3 md:col-span-2">
-                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Key Features (comma separated)</label>
-                  <input value={prodKeyFeatures} onChange={e => setProdKeyFeatures(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-300 text-slate-900 text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Personalized Design, Non-slip Base, Stitched Edges" />
+                  <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">About Product</label>
+                  <textarea value={prodAbout} onChange={e => setProdAbout(e.target.value)} rows={3} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" placeholder="Detailed product story..." />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 md:col-span-3">
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Rating</label>
-                    <input type="number" min="0" max="5" step="0.1" value={prodRating} onChange={e => setProdRating(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" />
-                  </div>
-                  <div className="space-y-3">
-                    <label className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 ml-1">Reviews Count</label>
-                    <input type="number" min="0" step="1" value={prodReviews} onChange={e => setProdReviews(e.target.value)} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-black/10 text-black text-sm focus:ring-2 focus:ring-primary/10 outline-none border" />
-                  </div>
-                  <div className="flex items-center gap-3 pt-8">
-                    <input id="inStock" type="checkbox" checked={prodInStock} onChange={e => setProdInStock(e.target.checked)} className="accent-primary" />
-                    <label htmlFor="inStock" className="text-sm text-black/60">In Stock</label>
-                  </div>
-                </div>
-
-                <button type="submit" className="md:col-span-3 bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-[0.98] flex items-center justify-center gap-3">
+                <button type="submit" className="md:col-span-2 bg-primary text-white py-4 md:py-5 rounded-xl md:rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-[0.98] flex items-center justify-center gap-3">
                    {loading ? <Loader2 size={20} className="animate-spin" /> : <Plus size={20} />}
                    {loading ? 'Processing...' : 'Deploy Product'}
                 </button>
@@ -1075,53 +1315,80 @@ const AdminDashboard: React.FC = () => {
             <motion.div key="ord" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-12">
               {/* Stats Overview */}
               {/* Stats Overview */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
                 <div className="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] border border-slate-200 shadow-lg relative overflow-hidden group">
-                  <div className="absolute -top-4 -right-4 p-4 md:p-8 text-slate-300 group-hover:text-slate-400 transition-colors">
+                  <div className="absolute -top-4 -right-4 p-4 md:p-8 text-slate-100 group-hover:text-slate-200 transition-colors">
                     <ShoppingBag size={80} className="md:w-[120px] md:h-[120px]" />
                   </div>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-2 md:mb-4">Total Orders Volume</p>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-2 md:mb-4">Today's Activity</p>
                   <div className="flex items-baseline gap-2 md:gap-3">
-                    <span className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter">{totalOrdersCount}</span>
-                    <span className="text-[10px] md:text-sm font-bold text-emerald-500 uppercase tracking-widest leading-none">Active Entries</span>
+                    <span className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter">₹{todayRevenue.toLocaleString()}</span>
+                    <span className="text-[10px] md:text-sm font-bold text-emerald-500 uppercase tracking-widest leading-none">Payments</span>
                   </div>
                 </div>
                 <div className="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] border border-slate-200 shadow-lg relative overflow-hidden group">
-                  <div className="absolute -top-4 -right-4 p-4 md:p-8 text-emerald-300 group-hover:text-emerald-400 transition-colors">
+                  <div className="absolute -top-4 -right-4 p-4 md:p-8 text-slate-100 group-hover:text-slate-200 transition-colors">
                     <LayoutDashboard size={80} className="md:w-[120px] md:h-[120px]" />
                   </div>
-                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.4em] mb-2 md:mb-4">Cumulative Revenue</p>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-2 md:mb-4">Total Revenue</p>
                   <div className="flex items-baseline gap-2 md:gap-3">
-                    <span className="text-3xl md:text-6xl font-black text-slate-900 tracking-tighter">₹{totalRevenue.toLocaleString()}</span>
-                    <span className="text-[10px] md:text-sm font-bold text-primary uppercase tracking-widest italic leading-none">INR Net</span>
+                    <span className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter">₹{totalRevenue.toLocaleString()}</span>
+                    <span className="text-[10px] md:text-sm font-bold text-primary uppercase tracking-widest leading-none">Net Gross</span>
+                  </div>
+                </div>
+                <div className="bg-white p-6 md:p-8 rounded-3xl md:rounded-[2.5rem] border border-slate-200 shadow-lg relative overflow-hidden group">
+                  <div className="absolute -top-4 -right-4 p-4 md:p-8 text-slate-100 group-hover:text-slate-200 transition-colors">
+                    <Package size={80} className="md:w-[120px] md:h-[120px]" />
+                  </div>
+                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.4em] mb-2 md:mb-4">Order Volume</p>
+                  <div className="flex items-baseline gap-2 md:gap-3">
+                    <span className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter">{orders.length}</span>
+                    <span className="text-[10px] md:text-sm font-bold text-slate-400 uppercase tracking-widest leading-none">Records</span>
                   </div>
                 </div>
               </div>
 
               {/* Filter Bar */}
-              <div className="overflow-x-auto custom-scrollbar -mx-4 px-4 py-2 md:mx-0 md:px-0 md:py-0">
-                <div className="flex items-center gap-3 md:gap-4 bg-white p-2 md:p-3 rounded-2xl md:rounded-3xl border border-slate-200 w-max md:w-fit min-w-full md:min-w-0">
-                  {[
-                    { id: 'all', label: 'All Records' },
-                    { id: 'today', label: 'Today Only' },
-                    { id: '24h', label: 'Last 24h' },
-                    { id: '7d', label: '7 Days' },
-                    { id: '30d', label: '30 Days' },
-                  ].map((f) => (
-                    <button
-                      key={f.id}
-                      onClick={() => setOrderFilter(f.id as any)}
-                      className={`px-4 md:px-6 py-2.5 md:py-3 rounded-xl md:rounded-2xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 whitespace-nowrap ${
-                        orderFilter === f.id 
-                          ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105' 
-                          : 'text-slate-500 hover:text-slate-200 hover:bg-slate-800/50'
-                      }`}
-                    >
-                      {f.label}
-                    </button>
-                  ))}
+                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 bg-white p-3 rounded-2xl md:rounded-3xl border border-slate-200">
+                  <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-xl border border-slate-100 flex-1 md:flex-none">
+                    {[
+                      { id: 'all', label: 'All' },
+                      { id: 'today', label: 'Today' },
+                      { id: '7d', label: '7d' },
+                      { id: '30d', label: '30d' },
+                      { id: 'custom', label: 'Custom' },
+                    ].map((f) => (
+                      <button
+                        key={f.id}
+                        onClick={() => setOrderFilter(f.id as any)}
+                        className={`px-4 md:px-5 py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-bold uppercase tracking-[0.1em] transition-all whitespace-nowrap ${
+                          orderFilter === f.id 
+                            ? 'bg-primary text-white shadow-md' 
+                            : 'text-slate-500 hover:text-primary'
+                        }`}
+                      >
+                        {f.label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {orderFilter === 'custom' && (
+                    <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="flex-1 max-w-xs">
+                      <input 
+                        type="date" 
+                        value={orderSearchDate}
+                        onChange={(e) => setOrderSearchDate(e.target.value)}
+                        className="w-full px-4 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/10"
+                      />
+                    </motion.div>
+                  )}
+                  
+                  <div className="flex-1 text-right hidden md:block">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                      Displaying {filteredOrders.length} of {orders.length} Transmissions
+                    </p>
+                  </div>
                 </div>
-              </div>
 
               {/* Orders List */}
               <div className="space-y-6 md:space-y-8">
@@ -1130,13 +1397,28 @@ const AdminDashboard: React.FC = () => {
                     <div className="flex-1 space-y-6 md:space-y-8">
                       <div className="flex flex-wrap items-center gap-3 md:gap-4">
                         <div className="px-3 md:px-4 py-1.5 md:py-2 bg-primary/10 border border-primary/20 rounded-lg md:rounded-xl">
-                          <span className="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-[0.3em]">O-ID: {order.id.slice(-8).toUpperCase()}</span>
+                          <span className="text-[9px] md:text-[10px] font-bold text-primary uppercase tracking-[0.3em]">ID: {order.id.slice(-8).toUpperCase()}</span>
                         </div>
-                        <span className={`px-3 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-black uppercase tracking-[0.3em] ${
-                          order.status === 'Shipped' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-500 border border-amber-500/20 animate-pulse'
-                        }`}>
-                          {order.status || 'Processing'}
-                        </span>
+                        <div className="relative group/status">
+                          <select 
+                            value={order.status || 'Processing'}
+                            onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                            className={`pl-3 pr-8 py-1.5 md:py-2 rounded-lg md:rounded-xl text-[9px] md:text-[10px] font-bold uppercase tracking-[0.2em] appearance-none cursor-pointer outline-none transition-all ${
+                              order.status === 'Shipped' || order.status === 'Delivered' 
+                                ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' 
+                                : order.status === 'Cancelled'
+                                  ? 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
+                                  : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
+                            }`}
+                          >
+                            <option value="Processing">Processing</option>
+                            <option value="Confirmed">Confirmed</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Cancelled">Cancelled</option>
+                          </select>
+                          <ChevronDown size={10} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none opacity-40" />
+                        </div>
                         <span className="text-[9px] md:text-[10px] font-black text-slate-600 uppercase tracking-widest sm:ml-auto w-full sm:w-auto">
                           {(order.createdAt as any)?.toDate().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                         </span>
@@ -1189,18 +1471,17 @@ const AdminDashboard: React.FC = () => {
 
                     <div className="w-full xl:w-64 flex flex-col sm:flex-row xl:flex-col justify-between items-stretch sm:items-end xl:items-end border-t xl:border-t-0 xl:border-l border-slate-800/50 pt-8 xl:pt-0 xl:pl-8 gap-6">
                       <div className="text-left sm:text-right space-y-1">
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Net Settlement</p>
-                        <p className="text-3xl md:text-4xl font-black text-white tracking-tighter">₹{order.total?.toLocaleString()}</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">Order Total</p>
+                        <p className="text-3xl md:text-4xl font-black text-slate-900 tracking-tighter">₹{order.total?.toLocaleString()}</p>
                       </div>
                       
-                      {order.status !== 'Shipped' && (
-                        <button 
-                          onClick={() => updateOrderStatus(order.id, 'Shipped')}
-                          className="flex-1 sm:flex-none sm:min-w-[180px] bg-white text-[#020617] px-6 md:px-8 py-4 md:py-5 rounded-xl md:rounded-2xl text-[10px] font-black uppercase tracking-[0.25em] shadow-xl hover:bg-primary hover:text-white transition-all transform active:scale-95 duration-300"
-                        >
-                          Dispatch Order
-                        </button>
-                      )}
+                      <div className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border ${
+                        order.status === 'Shipped' || order.status === 'Delivered'
+                          ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                          : 'bg-slate-50 text-slate-400 border-slate-100'
+                      }`}>
+                        {order.status || 'Processing'}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -1279,8 +1560,8 @@ const AdminDashboard: React.FC = () => {
                       <p className="text-[9px] md:text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-1">Authorized Modification Portal</p>
                     </div>
                   </div>
-                  <button onClick={() => setEditingItem(null)} className="size-9 md:size-10 flex items-center justify-center rounded-lg md:rounded-xl bg-slate-800/50 text-slate-400 hover:text-white hover:bg-rose-500/20 hover:text-rose-400 transition-all border border-slate-700/50">
-                    <X size={18} className="md:w-5 md:h-5" />
+                  <button onClick={() => setEditingItem(null)} className="size-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-primary hover:text-white transition-all border border-slate-200 shadow-sm group">
+                    <X size={20} className="group-hover:rotate-90 transition-transform duration-300" />
                   </button>
                 </div>
 
@@ -1339,19 +1620,22 @@ const AdminDashboard: React.FC = () => {
                         
                         updateItem('products', editingItem.id, {
                           name: formData.get('name'),
-                          originalPrice: parseFloat(formData.get('originalPrice') as string),
                           price: parseFloat(formData.get('price') as string),
+                          originalPrice: parseFloat(formData.get('originalPrice') as string),
                           category: formData.get('category'),
                           childCategory: formData.get('subcategory'),
                           image: formData.get('image'),
                           images: images,
-                          sizes: sizes,
                           rating: parseFloat(formData.get('rating') as string) || 5,
-                          reviews: parseInt(formData.get('reviews') as string) || 0,
-                          inStock: formData.get('inStock') === 'on',
                           description: formData.get('description'),
-                          details: formData.get('details'),
-                          keyFeatures: (formData.get('keyFeatures') as string).split(',').map(s => s.trim()).filter(s => s)
+                          sizes: sizes,
+                          details: {
+                            material: formData.get('material') as string,
+                            weight: formData.get('weight') as string,
+                            size: formData.get('size') as string,
+                            aboutProduct: formData.get('aboutProduct') as string
+                          },
+                          updatedAt: Timestamp.now()
                         });
                       }}
                       className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 md:gap-y-8"
@@ -1388,59 +1672,47 @@ const AdminDashboard: React.FC = () => {
                         <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Gallery Images (comma separated URLs)</label>
                         <input name="images" defaultValue={editingItem.images?.join(', ')} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 md:col-span-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:col-span-2">
                         <div className="space-y-3">
-                          <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Rating (0-5)</label>
-                          <input name="rating" type="number" min="0" max="5" step="0.1" defaultValue={editingItem.rating || 5} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                          <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Material</label>
+                          <input name="material" defaultValue={editingItem.details?.material} className="w-full px-5 py-3.5 rounded-xl bg-white border-slate-200 text-slate-900 text-sm outline-none border" />
                         </div>
                         <div className="space-y-3">
-                          <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Reviews Count</label>
-                          <input name="reviews" type="number" min="0" step="1" defaultValue={editingItem.reviews || 0} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-900 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                          <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Weight</label>
+                          <input name="weight" defaultValue={editingItem.details?.weight} className="w-full px-5 py-3.5 rounded-xl bg-white border-slate-200 text-slate-900 text-sm outline-none border" />
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Size Spec</label>
+                          <input name="size" defaultValue={editingItem.details?.size} className="w-full px-5 py-3.5 rounded-xl bg-white border-slate-200 text-slate-900 text-sm outline-none border" />
+                        </div>
+                        <div className="space-y-3">
+                          <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Rating</label>
+                          <input name="rating" type="number" step="0.1" defaultValue={editingItem.rating} className="w-full px-5 py-3.5 rounded-xl bg-white border-slate-200 text-slate-900 text-sm outline-none border" />
                         </div>
                       </div>
-                      <div className="flex items-center gap-4 py-4 bg-white px-6 rounded-2xl border border-slate-200">
-                        <label className="flex items-center gap-3 cursor-pointer group">
-                          <input 
-                            type="checkbox" 
-                            name="inStock"
-                            defaultChecked={editingItem.inStock !== false}
-                            className="size-5 rounded border-slate-300 text-primary focus:ring-primary/20"
-                          />
-                          <span className="text-[10px] font-black text-slate-500 group-hover:text-slate-900 uppercase tracking-widest transition-colors">Operational Logic (In Stock)</span>
-                        </label>
-                      </div>
-                      {(editingItem.category === 'wearables' || editingItem.category === 'Wearables') ? (
+                      
+                      {editingItem.category === 'wearables' && (
                         <div className="md:col-span-2 space-y-4">
                           <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Variant Matrix (Sizes)</label>
-                          <div className="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                          <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
                             {WEARABLE_SIZES.map(size => (
-                              <label key={size} className="flex items-center justify-center p-3 rounded-xl border border-slate-200 bg-white cursor-pointer hover:border-primary/50 transition-all">
-                                <input 
-                                  type="checkbox" 
+                              <label key={size} className="flex items-center gap-2 p-3 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:border-primary/50 transition-all">
+                                <input
+                                  type="checkbox"
                                   name="sizes"
                                   value={size}
                                   defaultChecked={editingItem.sizes?.includes(size)}
-                                  className="hidden"
+                                  className="accent-primary"
                                 />
-                                <span className={`text-[10px] font-black transition-colors ${editingItem.sizes?.includes(size) ? 'text-primary' : 'text-slate-500'}`}>
-                                  {size}
-                                </span>
+                                <span className="text-[10px] font-bold text-slate-700">{size}</span>
                               </label>
                             ))}
                           </div>
                         </div>
-                      ) : null}
+                      )}
                       <div className="md:col-span-2 space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Brief Description</label>
-                        <textarea name="description" defaultValue={editingItem.description} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-800 text-sm focus:ring-2 focus:ring-primary/20 font-medium h-24 outline-none border" />
-                      </div>
-                      <div className="md:col-span-2 space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Details / Specifications</label>
-                        <textarea name="details" defaultValue={typeof editingItem.details === 'string' ? editingItem.details : ''} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-800 text-sm focus:ring-2 focus:ring-primary/20 font-medium h-24 outline-none border" />
-                      </div>
-                      <div className="md:col-span-2 space-y-3">
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">Key Features (comma separated)</label>
-                        <input name="keyFeatures" defaultValue={editingItem.keyFeatures?.join(', ')} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-800 text-sm focus:ring-2 focus:ring-primary/20 font-medium outline-none border" />
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 ml-1">About Product (Detailed)</label>
+                        <textarea name="aboutProduct" defaultValue={editingItem.details?.aboutProduct} className="w-full px-5 md:px-6 py-3.5 md:py-4 rounded-xl md:rounded-2xl bg-white border-slate-200 text-slate-800 text-sm focus:ring-2 focus:ring-primary/20 font-medium h-32 outline-none border" />
                       </div>
                       <button type="submit" className="md:col-span-2 bg-primary text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:bg-primary-dark transition-all transform active:scale-[0.98]">
                         Authorize Global Update

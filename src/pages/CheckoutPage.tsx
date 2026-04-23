@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
-import { BUSINESS_PHONE } from '../constants';
+import { BUSINESS_PHONE, WEARABLE_SIZES } from '../constants';
 import { db } from '../firebase';
 import { collection, addDoc, Timestamp } from 'firebase/firestore';
 
@@ -160,9 +160,9 @@ const CheckoutPage: React.FC = () => {
                           </p>
                           
                           {/* Size Selector in Cart */}
-                          {item.sizes && item.sizes.length > 0 && (
+                          {((item.sizes && item.sizes.length > 0) || item.category === 'wearables') && (
                             <div className="flex flex-wrap gap-2 mb-6">
-                              {item.sizes.map(size => (
+                              {(item.sizes || WEARABLE_SIZES).map(size => (
                                 <button
                                   key={size}
                                   onClick={() => updateSize(item.id, item.selectedSize, size)}
