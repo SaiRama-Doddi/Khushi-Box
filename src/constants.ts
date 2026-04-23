@@ -27,7 +27,7 @@ export const wearablesCategory: Category = {
   id: "6",
   name: "Wearables",
   slug: "wearables",
-  image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1770395355/TrackSuits_2_jdnsds.jpg",
+  image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1770394749/Tshirt2_qomdgm.jpg",
   children: [
     { id: "6-1", name: "T-Shirts", slug: "t-shirts" },
     { id: "6-2", name: "Oversized T Shirts", slug: "oversized-t-shirts" },
