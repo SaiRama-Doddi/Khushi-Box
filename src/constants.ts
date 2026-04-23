@@ -8,6 +8,7 @@ export const personalisedGiftsCategory: Category = {
   id: "5",
   name: "Personalised Gifts",
   slug: "personalised-gifts",
+  image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1770395027/Tera_hero_Idhar_hai__2_jiq7jh.jpg",
   children: [
     { id: "5-1", name: "Mugs", slug: "mugs" },
     { id: "5-2", name: "Waterbottles & Sippers", slug: "waterbottles-sippers" },
@@ -26,6 +27,7 @@ export const wearablesCategory: Category = {
   id: "6",
   name: "Wearables",
   slug: "wearables",
+  image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1770395355/TrackSuits_2_jdnsds.jpg",
   children: [
     { id: "6-1", name: "T-Shirts", slug: "t-shirts" },
     { id: "6-2", name: "Oversized T Shirts", slug: "oversized-t-shirts" },
@@ -41,6 +43,7 @@ export const magnetsCategory: Category = {
   id: "7",
   name: "Magnets",
   slug: "magnets",
+  image: "https://res.cloudinary.com/dq7hun84m/image/upload/v1770395224/MDF_Key_Rings-Heart_4_vrmvju.jpg",
   children: [
     { id: "7-1", name: "Personalized", slug: "personalized-magnets" },
     { id: "7-2", name: "Funky", slug: "funky-magnets" },
