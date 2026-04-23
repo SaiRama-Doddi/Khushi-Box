@@ -131,6 +131,7 @@ export const Header: React.FC = () => {
                 </div>
               ))}
               <Link to="/about" className="text-[11px] font-bold uppercase tracking-widest text-black hover:text-primary transition-colors">Our Story</Link>
+              <Link to="/contact" className="text-[11px] font-bold uppercase tracking-widest text-black hover:text-primary transition-colors">Contact</Link>
           </nav>
 
           {/* Right: Actions */}

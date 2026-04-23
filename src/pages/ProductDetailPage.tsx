@@ -212,24 +212,24 @@ const ProductDetailPage: React.FC = () => {
             )}
 
             <div className="flex flex-col sm:flex-row gap-4 mb-12">
-              <div className="flex items-center border border-background-tan h-14">
+              <div className="flex items-center border border-background-tan h-14 md:h-16 bg-white/50 backdrop-blur-sm px-2">
                 <button 
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-5 h-full text-text-muted hover:text-text-dark transition-colors flex items-center justify-center"
+                  className="w-12 h-full text-text-muted hover:text-text-dark transition-colors flex items-center justify-center"
                 >
-                  <span className="text-lg font-light">-</span>
+                  <span className="text-xl font-light">-</span>
                 </button>
                 <input 
-                  className="w-12 h-full border-none bg-transparent text-center font-medium text-[13px] text-text-dark focus:ring-0" 
+                  className="w-12 h-full border-none bg-transparent text-center font-bold text-sm text-text-dark focus:ring-0" 
                   type="text" 
                   value={quantity}
                   readOnly
                 />
                 <button 
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-5 h-full text-text-muted hover:text-text-dark transition-colors flex items-center justify-center"
+                  className="w-12 h-full text-text-muted hover:text-text-dark transition-colors flex items-center justify-center"
                 >
-                  <span className="text-lg font-light">+</span>
+                  <span className="text-xl font-light">+</span>
                 </button>
               </div>
               
@@ -242,11 +242,49 @@ const ProductDetailPage: React.FC = () => {
                   addToCart(effectiveProduct, quantity, selectedSize);
                   showToast(`${effectiveProduct.name} added to bag!`);
                 }}
-                className="flex-1 h-14 bg-primary text-white px-8 text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-primary-dark transition-colors flex items-center justify-center gap-3"
+                className="flex-1 h-14 md:h-16 bg-primary text-white px-8 text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-primary-dark transition-all duration-300 flex items-center justify-center gap-3 shadow-xl active:scale-[0.98]"
               >
-                <ShoppingBag size={16} strokeWidth={1.5} />
+                <ShoppingBag size={18} strokeWidth={1.5} />
                 Add to Bag
               </button>
+            </div>
+
+            {/* Mobile Sticky Action Bar */}
+            <div className="fixed bottom-0 inset-x-0 bg-white border-t border-background-tan p-4 z-50 md:hidden flex gap-4 animate-in slide-in-from-bottom duration-500">
+               <div className="flex items-center border border-background-tan h-14 px-2">
+                  <button 
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-10 h-full text-text-muted flex items-center justify-center"
+                  >
+                    <span className="text-xl">-</span>
+                  </button>
+                  <input 
+                    className="w-8 h-full border-none bg-transparent text-center font-bold text-sm focus:ring-0" 
+                    type="text" 
+                    value={quantity}
+                    readOnly
+                  />
+                  <button 
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="w-10 h-full text-text-muted flex items-center justify-center"
+                  >
+                    <span className="text-xl">+</span>
+                  </button>
+               </div>
+               <button 
+                onClick={() => {
+                  if (effectiveProduct.sizes && effectiveProduct.sizes.length > 0 && !selectedSize) {
+                    showToast('Please select a variation', 'error');
+                    return;
+                  }
+                  addToCart(effectiveProduct, quantity, selectedSize);
+                  showToast(`${effectiveProduct.name} added to bag!`);
+                }}
+                className="flex-1 bg-primary text-white h-14 rounded-none text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-2 active:bg-primary-dark shadow-lg"
+               >
+                 <ShoppingBag size={16} />
+                 Add to Bag • ₹{effectiveProduct.price * quantity}
+               </button>
             </div>
 
             {/* Accordions for Features and Details */}
